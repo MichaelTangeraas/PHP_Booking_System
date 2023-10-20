@@ -1,0 +1,29 @@
+/* style.css */
+
+/* A grid container for the calendar */
+.main-grid-container {
+    display: grid;
+    grid-template-columns: 100px auto auto auto auto auto;
+    margin: 50px;
+}
+
+/* A large grid item for the calendar */
+.large-grid-item {
+    border: 1px solid;
+    font-size: 20px;
+    text-align: center;
+}
+
+/* A grid container for the time section of the calendar */
+.grid-container {
+    display: grid;
+    grid-template-columns: auto;
+}
+
+/* A grid item for the time and day sections of the calendar */
+.grid-item {
+    border-bottom: 1px solid;
+    padding: 10px;
+    font-size: 15px;
+    text-align: center;
+}
