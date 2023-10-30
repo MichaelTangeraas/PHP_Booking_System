@@ -12,6 +12,18 @@
 </head>
 
 <body>
+    <div class="header">
+        <div class="logo">
+            <a href="index.php">PHP Booking System</a>
+        </div>
+        <ul class="navbar">
+            <li><a href="../public_html/index.php">Home</a></li>
+            <li><a href="sign_up.php">Sign Up</a></li>
+            <li><a href="./index.php">Log in</a></li>
+        </ul>
+    </div>
+
+    <!-- <body>
     <div>
         <h1>PHP Booking System</h1>
-    </div>
+    </div> -->
