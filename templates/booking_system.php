@@ -1,7 +1,9 @@
 <!-- Booking System -->
 <?php
 include("../classes/calender.php");
-$calender = new Calender();
+include("../classes/reload.php");
+$calender = new Calender($pdo);
+$reload = new Reload($pdo);
 ?>
 
 <!-- A form for booking a tutor-guidance session -->
@@ -9,14 +11,15 @@ $calender = new Calender();
     <input type="submit" name="booking" value="Book veiledning">
     <input type="text" name="text" placeholder="Booking info">
     <select name="day" form="bookingForm">
-        <option value="" disabled selected>Dag</option>
-        <option value="Mandag">Mandag</option>
-        <option value="Tirsdag">Tirsdag</option>
-        <option value="Onsdag">Onsdag</option>
-        <option value="Torsdag">Torsdag</option>
-        <option value="Fredag">Fredag</option>
+        <option value="day" hidden selected>Dag</option>
+        <option value="monday">Mandag</option>
+        <option value="tuesday">Tirsdag</option>
+        <option value="wednesday">Onsdag</option>
+        <option value="thursday">Torsdag</option>
+        <option value="friday">Fredag</option>
     </select>
     <input type="number" name="time" min="8" max="17" placeholder="Tid">
+    <input type="submit" name="reset" value="Tilbakestill">
 </form>
 
 
@@ -32,11 +35,15 @@ $calender = new Calender();
     <?php
     // Create the time and day sections of the calendar using functions from CalenderFunctions class
     $calender->createTime();
-    $calender->createDay("Mandag");
-    $calender->createDay("Tirsdag");
-    $calender->createDay("Onsdag");
-    $calender->createDay("Torsdag");
-    $calender->createDay("Fredag");
+    $calender->createDay("monday");
+    $calender->createDay("tuesday");
+    $calender->createDay("wednesday");
+    $calender->createDay("thursday");
+    $calender->createDay("friday");
+
+    if (isset($_REQUEST['reset'])) {
+        $reload->reloadWeekdays($pdo);
+    }
     ?>
 
 </div>

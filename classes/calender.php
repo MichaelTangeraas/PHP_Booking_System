@@ -1,12 +1,19 @@
 <?php
-
 /**
  * Class Calender
  * 
  * A class that contains functions for creating a calendar and booking tutor-guidance sessions.
  */
+require_once('../includes/db.inc.php');
+include('select.php');
+include('update.php');
 class Calender
 {
+    public $pdo;
+    public function __construct($pdo)
+    {
+        $this->pdo = $pdo;
+    }
     /**
      * Outputs the value of a booking based on the input fields if the submit button is pressed,
      * or "Ledig" if no booking is set or the button has not been clicked.
@@ -18,8 +25,11 @@ class Calender
     {
         if (isset($_REQUEST['booking']) && $timeDate == $_REQUEST['day'] . $_REQUEST['time']) {
             echo $_REQUEST['text'];
+            $update = new Update($this->pdo,$_REQUEST['text'],$timeDate);
+            echo $update->updateToDB();
         } else {
-            echo "Ledig";
+            $select = new Select($this->pdo,$timeDate);
+            echo $select->selectFromDB();
         }
     }
 
