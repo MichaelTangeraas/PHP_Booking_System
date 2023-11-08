@@ -3,9 +3,10 @@ require_once('../includes/db.inc.php');
 class Reload{
     public $q;
 
-    public function __construct($pdo)
+    public function __construct($pdo, $table)
     {
-        $sql = "DROP TABLE IF EXISTS weekdays;
+        if ($table == 'weekdays'){
+            $sql = "DROP TABLE IF EXISTS weekdays;
 
         CREATE TABLE weekdays (
             primary_key INT AUTO_INCREMENT PRIMARY KEY,
@@ -19,11 +20,21 @@ class Reload{
         ('wednesday8'),('wednesday9'),('wednesday10'),('wednesday11'),('wednesday12'),('wednesday13'),('wednesday14'),('wednesday15'),('wednesday16'),('wednesday17'),
         ('thursday8'),('thursday9'),('thursday10'),('thursday11'),('thursday12'),('thursday13'),('thursday14'),('thursday15'),('thursday16'),('thursday17'),
         ('friday8'),('friday9'),('friday10'),('friday11'),('friday12'),('friday13'),('friday14'),('friday15'),('friday16'),('friday17');";
+        }else if ($table == 'users'){
+            $sql = "DROP TABLE IF EXISTS booking_users;
+            
+            CREATE TABLE booking_users (
+                userID INT AUTO_INCREMENT PRIMARY KEY,
+                email varchar(255) NOT NULL,
+                password varchar(255) NOT NULL
+              ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;";
+        }
+        
 
         $this->q = $pdo->prepare($sql);
     }
     
-    public function reloadWeekdays()
+    public function reload()
     {
         try {
             $this->q->execute();
