@@ -3,7 +3,7 @@
 include("../classes/calender.php");
 include("../classes/reload.php");
 $calender = new Calender($pdo);
-$reload = new Reload($pdo);
+$reload = new Reload($pdo, "weekdays");
 ?>
 
 <!-- A form for booking a tutor-guidance session -->
@@ -42,7 +42,7 @@ $reload = new Reload($pdo);
     $calender->createDay("friday");
 
     if (isset($_REQUEST['reset'])) {
-        $reload->reloadWeekdays($pdo);
+        $reload->reload($pdo);
     }
     ?>
 
