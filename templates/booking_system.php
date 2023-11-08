@@ -1,7 +1,9 @@
 <!-- Booking System -->
 <?php
 include("../classes/calender.php");
+include("../classes/reload.php");
 $calender = new Calender($pdo);
+$reload = new Reload($pdo);
 ?>
 
 <!-- A form for booking a tutor-guidance session -->
@@ -17,6 +19,7 @@ $calender = new Calender($pdo);
         <option value="friday">Fredag</option>
     </select>
     <input type="number" name="time" min="8" max="17" placeholder="Tid">
+    <input type="submit" name="reset" value="Tilbakestill">
 </form>
 
 
@@ -37,6 +40,10 @@ $calender = new Calender($pdo);
     $calender->createDay("wednesday");
     $calender->createDay("thursday");
     $calender->createDay("friday");
+
+    if (isset($_REQUEST['reset'])) {
+        $reload->reloadWeekdays($pdo);
+    }
     ?>
 
 </div>
