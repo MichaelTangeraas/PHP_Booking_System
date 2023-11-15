@@ -1,30 +1,3 @@
-<!-- <?php
-        // require_once('../includes/db.inc.php');
-
-        //  if (isset($_POST['Register'])) {
-        // if (isset($_POST['email']) && isset($_POST['password'])) {
-        //     $email = $_POST['email'];
-        //     $password = password_hash($_POST['password'], PASSWORD_DEFAULT); // Hash the password
-
-        //     $sql = "INSERT INTO booking_users (email, password) VALUES ('$email', '$password')";
-
-        //     $query = $pdo->prepare($sql);
-
-        //     try {
-        //         $query->execute();
-        //     } catch (PDOException $e) {
-        //         echo "Error querying database: " . $e->getMessage() . "<br>"; // Aldri gjør dette i produksjon!
-        //     }
-        // } else {
-        //     echo "Please fill out all fields";
-        // }
-        // }
-
-
-
-        ?> -->
-
-
 <?php
 // Start a new session
 // session_start();
@@ -77,10 +50,15 @@ if (isset($_POST['register'])) {
 ?>
 
 <!-- HTML form for user registration -->
-<form action="sign_up.php" method="post">
-    <label for="email">Email:</label><br>
-    <input type="email" id="email" name="email" required><br>
-    <label for="password">Password:</label><br>
-    <input type="password" id="password" name="password" required><br>
-    <input type="submit" value="Sign Up" name="register">
-</form>
+<div class="center">
+    <h1>Sign up</h1>
+    <p>Create your account</p>
+    <form action="sign_up.php" method="post">
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email" required><br>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password" required><br>
+        <input type="submit" value="Sign Up" name="register">
+    </form>
+    <p>Already have an account? <a href="login.php">Log in</a></p>
+</div>

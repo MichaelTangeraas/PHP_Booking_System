@@ -1,12 +1,12 @@
 <?php
+
 /**
  * Class Calender
  * 
  * A class that contains functions for creating a calendar and booking tutor-guidance sessions.
  */
 require_once('../includes/db.inc.php');
-include('select.php');
-include('update.php');
+include('database.php');
 class Calender
 {
     public $pdo;
@@ -25,11 +25,11 @@ class Calender
     {
         if (isset($_REQUEST['booking']) && $timeDate == $_REQUEST['day'] . $_REQUEST['time']) {
             echo $_REQUEST['text'];
-            $update = new Update($this->pdo,$_REQUEST['text'],$timeDate);
-            echo $update->updateToDB();
+            $update = new Database($this->pdo);
+            echo $update->updateToDB($_REQUEST['text'], $timeDate);
         } else {
-            $select = new Select($this->pdo,$timeDate);
-            echo $select->selectFromDB();
+            $select = new Database($this->pdo);
+            echo $select->selectFromDB($timeDate);
         }
     }
 
