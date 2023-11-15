@@ -96,9 +96,12 @@ class Database
             $sql = "DROP TABLE IF EXISTS booking_users;
             
             CREATE TABLE booking_users (
-                userID INT AUTO_INCREMENT PRIMARY KEY,
-                email varchar(255) NOT NULL,
-                password varchar(255) NOT NULL
+                `userID` int(11) AUTO_INCREMENT PRIMARY KEY,
+                `fname` varchar(255) NOT NULL,
+                `lname` varchar(255) NOT NULL,
+                `email` varchar(255) UNIQUE NOT NULL,
+                `password` varchar(255) NOT NULL,
+                `role` enum('la','student') NOT NULL DEFAULT 'student'
               ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;";
 
             // Execute the query and handle any exceptions
@@ -152,6 +155,18 @@ class Database
         $this->pdo = null;
     }
 
+    /**
+     * Inserts a new user into the database.
+     *
+     * This function takes a first name, last name, email, and password as input and inserts a new user into the `booking_users` table in the database.
+     *
+     * @param string $fname The first name of the user.
+     * @param string $lname The last name of the user.
+     * @param string $email The email address of the user.
+     * @param string $password The password of the user.
+     *
+     * @return void
+     */
     function insertToDB($fname, $lname, $email, $password)
     {
         try {
@@ -171,12 +186,21 @@ class Database
             // Execute the statement
             $query->execute();
         } catch (PDOException $e) {
-            // Print the error message if the insertion fails
-            echo $e->getMessage();
+            // Print the error message if the insertion fails. In almost all cases this will be due to a duplicate email address.
+            echo "En bruker med mailen " . $email . " finnes allerede";
         }
         $this->pdo = null;
     }
 
+    /**
+     * Deletes a user from the database.
+     *
+     * This function takes a user ID as input and deletes the corresponding user from the `booking_users` table in the database.
+     *
+     * @param string $userID The ID of the user to be deleted.
+     *
+     * @return void
+     */
     function deleteFromDB($userID)
     {
         // Prepare an SQL DELETE statement
@@ -194,8 +218,16 @@ class Database
         $this->pdo = null;
     }
 
-    // function for fetching user info from database
-    function fetchUserFromDB($userID)
+    /**
+     * Select a user's information from the database based on UserID.
+     *
+     * This function takes a user ID as input and fetches the corresponding user's information from the `booking_users` table in the database.
+     *
+     * @param string $userID The ID of the user to be fetched.
+     *
+     * @return object Returns an object containing the user's information.
+     */
+    function selectUserFromDBUserId($userID)
     {
         // Prepare an SQL SELECT statement
         $sql = "SELECT * FROM `booking_users` WHERE userID = :userID";
@@ -217,48 +249,137 @@ class Database
         return $user;
     }
 
+    /**
+     * Retrieves a user from the database using their email.
+     *
+     * @param string $email The email of the user to retrieve.
+     * @return object|null The user object if found, null otherwise.
+     */
+    function selectUserFromDBEmail($email)
+    {
+        // SQL query to get user with the given email
+        $sql = "SELECT * FROM `booking_users` WHERE `email`= :email";
 
-    function changeUserRoleInDB($email, $role){
-        $sql = "UPDATE booking_users SET role = :role WHERE email = :email;";
+        // Prepare the SQL query
         $query = $this->pdo->prepare($sql);
         $query->bindParam(':email', $email, PDO::PARAM_STR);
-        $query->bindParam(':role', $role, PDO::PARAM_STR);
+
         try {
+            // Execute the SQL query
             $query->execute();
         } catch (PDOException $e) {
-            echo "En bruker med denne emailen finnes ikke";
+            // Print an error message if the query fails
+            echo "Feil email eller passord";
             exit();
         }
-        echo "Brukeren med email " . $email . " har nå rollen " . $role;
+
+        // Fetch the user data
+        $user = $query->fetch(PDO::FETCH_OBJ);
+
+        return $user;
     }
 
+    /**
+     * Changes a user's role in the database.
+     *
+     * This function takes an email and a role as input and updates the corresponding user's role in the `booking_users` table in the database.
+     *
+     * @param string $email The email of the user whose role is to be changed.
+     * @param string $role The new role for the user.
+     *
+     * @return void
+     */
+    function changeUserRoleInDB($email, $role)
+    {
+        if ($this->selectUserFromDBEmail($email) == "") {
+            echo "Brukeren med email " . $email . " finnes ikke";
+        } else {      // Prepare an SQL UPDATE statement
+            $sql = "UPDATE booking_users SET role = :role WHERE email = :email;";
+            // Prepare the statement
+            $query = $this->pdo->prepare($sql);
+
+            // Protect against SQL injections
+            $query->bindParam(':email', $email, PDO::PARAM_STR);
+            $query->bindParam(':role', $role, PDO::PARAM_STR);
+
+            try {
+                // Execute the statement
+                $query->execute();
+            } catch (PDOException $e) {
+                // Print an error message if the update fails
+                echo "Oi, her gikk det galt!";
+                exit();
+            }
+            // Print a success message
+            echo "Brukeren med email " . $email . " har nå rollen " . $role;
+        }
+    }
+
+    /**
+     * Updates a user's information in the database.
+     *
+     * This function takes a first name, last name, email, and user ID as input and updates the corresponding user's information in the `booking_users` table in the database.
+     *
+     * @param string $fname The new first name of the user.
+     * @param string $lname The new last name of the user.
+     * @param string $email The new email address of the user.
+     * @param string $userID The ID of the user to be updated.
+     *
+     * @return void
+     */
     function updateUserInDB($fname, $lname, $email, $userID)
     {
+        // Prepare an SQL UPDATE statement
         $sql = "UPDATE booking_users SET fname = :fname, lname = :lname, email = :email WHERE userID = $userID;";
+        // Prepare the statement
         $query = $this->pdo->prepare($sql);
+
+        // Protect against SQL injections
         $query->bindParam(':fname', $fname, PDO::PARAM_STR);
         $query->bindParam(':lname', $lname, PDO::PARAM_STR);
         $query->bindParam(':email', $email, PDO::PARAM_STR);
-        
+
         try {
+            // Execute the statement
             $query->execute();
         } catch (PDOException $e) {
-            echo "En bruker med emailen ".$email." finnes allerede";
+            // Print an error message if the update fails
+            echo "En bruker med emailen " . $email . " finnes allerede";
             exit();
         }
+        // Print a success message
         echo "Brukeren med email " . $email . " har blitt oppdatert";
     }
 
-    function updatePasswordInDB($password, $userID){
+    /**
+     * Updates a user's password in the database.
+     *
+     * This function takes a password and a user ID as input and updates the corresponding user's password in the `booking_users` table in the database.
+     *
+     * @param string $password The new password of the user.
+     * @param string $userID The ID of the user whose password is to be updated.
+     *
+     * @return void
+     */
+    function updatePasswordInDB($password, $userID)
+    {
+        // Prepare an SQL UPDATE statement
         $sql = "UPDATE booking_users SET password = :password WHERE userID = $userID;";
+        // Prepare the statement
         $query = $this->pdo->prepare($sql);
+
+        // Protect against SQL injections
         $query->bindParam(':password', $password, PDO::PARAM_STR);
+
         try {
+            // Execute the statement
             $query->execute();
         } catch (PDOException $e) {
+            // Print an error message if the update fails
             echo "Oi, her gikk det galt!";
             exit();
         }
+        // Print a success message
         echo "Passordet har blitt oppdatert";
     }
 }

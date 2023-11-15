@@ -34,23 +34,15 @@ if (isset($_POST['reset'])) {
             // Get password from form
             $password = $_POST['password'];
 
-            // SQL query to get user with the given email
-            $sql = "SELECT * FROM `booking_users` WHERE `email`='$email'";
+            $pdo = new Database($pdo);
 
-            // Prepare the SQL query
-            $query = $pdo->prepare($sql);
-
-            // Execute the SQL query
-            $query->execute();
-
-            // Fetch the user data
-            $booking_users = $query->fetch(PDO::FETCH_OBJ);
+            $user = $pdo->selectUserFromDBEmail($email);
 
             // Check if user exists
-            if ($query->rowCount() > 0) {
+            if ($user != null) {
 
                 // Verify the password
-                if (password_verify($password, $booking_users->password)) {
+                if (password_verify($password, $user->password)) {
 
                     // Correct password
                     echo "Riktig passord";
@@ -59,7 +51,7 @@ if (isset($_POST['reset'])) {
                     session_start();
 
                     // Store user ID in session
-                    $_SESSION['userID'] = $booking_users->userID;
+                    $_SESSION['userID'] = $user->userID;
 
                     // Redirect to index.php
                     header('location: index.php');
@@ -71,7 +63,7 @@ if (isset($_POST['reset'])) {
             } else {
 
                 // Incorrect username or password
-                echo "Feil brukernavn eller passord";
+                echo "Feil email eller passord";
 
                 // Redirect to login.php
                 // header('location: login.php');
@@ -79,7 +71,7 @@ if (isset($_POST['reset'])) {
         } else {
 
             // Required field is empty
-            echo "Please complete the required field!";
+            echo "Vennligst fyll ut alle skjemafelt!<br>";
 
             // Redirect to login.php
             // header('location: login.php');

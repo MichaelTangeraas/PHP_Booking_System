@@ -5,33 +5,59 @@
 // Include the database connection file
 require_once('../includes/db.inc.php');
 include_once('../classes/database.php');
+require_once('../classes/inputvalidator.php');
 
 // Check if the 'register' button has been clicked
 if (isset($_POST['register'])) {
 
     // Check if the email and password fields are not empty
-    if ($_POST['fname'] != "" || $_POST['lname'] != "" || $_POST['email'] != "" || $_POST['password'] != "") {
+    if ($_POST['fname'] != "" || $_POST['lname'] != "" || $_POST['email'] != "" || $_POST['password'] != "") 
+    {
+        $validator = new InputValidator();
+        $inputError = false;
 
-        // Get the first name from the form
-        $fname = $_POST['fname'];
+        // Get the first name from the form and clean the string
+        if ($validator->nameValidator($_POST['fname']) == false) {
+            echo "Fornavn er ikke gyldig!<br>";
+            $inputError = true;
+        } else {
+            $fname = $validator->cleanName($_POST['fname']);
+        }
 
-        // Get the last name from the form
-        $lname = $_POST['lname'];
+        // Get the last name from the form and clean the string
+        if ($validator->nameValidator($_POST['lname']) == false) {
+            echo "Etternavn er ikke gyldig!<br>";
+            $inputError = true;
+        } else {
+            $lname = $validator->cleanName($_POST['lname']);
+        }
 
-        // Get the email from the form
-        $email = $_POST['email'];
+        // Get the email from the form and clean the string
+        if ($validator->emailValidation($_POST['email']) == false) {
+            echo "Email er ikke gyldig! Bruk email med gyldig format.<br>";
+            $inputError = true;
+        } else {
+            $email = $validator->cleanString($_POST['email']);
+        }
 
-        // Hash the password using PHP's built-in password_hash function
-        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        // Get the password from the form and clean the string
+        if ($validator->passwordValidation($_POST['password']) == false) {
+            echo "Passord er ikke gyldig! Passord må inneholde minst en stor bokstav, to tall, et spesialtegn, og være minst 9 tegn langt.<br>";
+            $inputError = true;
+        } else {
+            // Hash the password using PHP's built-in password_hash function
+            $password = password_hash($validator->cleanString($_POST['password']), PASSWORD_DEFAULT);
+        }
 
-        $insert = new Database($pdo);
-        $insert->insertToDB($fname, $lname, $email, $password);
-
-        // Redirect the user to index.php
-        header('location:index.php');
+        if (isset($fname) && isset($lname) && isset($email) && isset($password) && !$inputError) {
+            $insert = new Database($pdo);
+            $insert->insertToDB($fname, $lname, $email, $password);
+            // Redirect the user to login.php
+            // header('location:login.php');
+        }
     } else {
         // Print a message if the fields are empty and redirect the user to the registration page
-        echo "Please fill up the required field!";
+        echo "Vennligst fyll ut alle skjemafelt!<br>";
         header('location:sign_up.php');
     }
 }

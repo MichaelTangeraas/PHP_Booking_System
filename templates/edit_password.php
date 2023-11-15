@@ -4,10 +4,11 @@
 
 include_once('../includes/db.inc.php');
 include_once('../classes/database.php');
+include_once('../classes/inputvalidator.php');
 
 // using the database.php class to get the user information from the database
 $userDB = new Database($pdo);
-$user = $userDB->fetchUserFromDB($_SESSION['userID']);
+$user = $userDB->selectUserFromDBUserId($_SESSION['userID']);
 
 
 // Check if the 'update' button has been clicked
@@ -18,21 +19,28 @@ if (isset($_POST['update'])) {
 
         if ($_POST['newpassword'] == $_POST['repetepassword'] && password_verify($_POST['oldpassword'], $user->password)) {
 
-            $password = password_hash($_POST['newpassword'], PASSWORD_DEFAULT);
+            $validator = new InputValidator();
 
-            // using the database.php class to update the user information in the database
-            $userDB->updatePasswordInDB($password, $_SESSION['userID']);
+            // Get the password from the form and clean the string
+            if ($validator->passwordValidation($_POST['newpassword']) == false) {
+                echo "Passord er ikke gyldig! Passord må inneholde minst en stor bokstav, to tall, et spesialtegn, og være minst 9 tegn langt.<br>";
+            } else {
+                // Hash the password using PHP's built-in password_hash function
+                $password = password_hash($validator->cleanString($_POST['newpassword']), PASSWORD_DEFAULT);
+                // using the database.php class to update the user information in the database
+                $userDB->updatePasswordInDB($password, $_SESSION['userID']);
 
-            // Redirect the user to index.php
-            header('location:profile.php');
-            $_SESSION['message'] = "Ditt passord er oppdatert";
+                // Redirect the user to index.php
+                header('location:profile.php');
+                $_SESSION['message'] = "Ditt passord er oppdatert";
+            }
         } else {
             echo "Passordene er ikke like. Prøv på nytt.";
         }
     } else {
         // Print a message if the fields are empty and redirect the user to the registration page
-        echo "Please fill up the required field!";
-        header('location:edit_profile.php');
+        echo "Vennligst fyll ut alle skjemafelt!<br>";
+        header('location:edit_password.php');
     }
 }
 

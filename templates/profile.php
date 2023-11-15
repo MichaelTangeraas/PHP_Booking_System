@@ -2,10 +2,11 @@
 
 include_once('../includes/db.inc.php');
 include_once('../classes/database.php');
+include_once('../classes/inputvalidator.php');
 
 // using the database.php class to get the user information from the database
 $userDB = new Database($pdo);
-$user = $userDB->fetchUserFromDB($_SESSION['userID']);
+$user = $userDB->selectUserFromDBUserId($_SESSION['userID']);
 
 ?>
 
@@ -49,10 +50,27 @@ if ($user->role != 'la') {
     exit();
 }
 if (isset($_POST['email']) && $_POST['role'] != 'choose') {
+
+    $validator = new InputValidator();
+    $inputError = false;
+
     if (isset($_POST['changeUserRole'])) {
-        $email = $_POST['email'];
+        // Get the email from the form and clean the string
+        if ($validator->emailValidation($_POST['email']) == false) {
+            echo "Email er ikke gyldig! Bruk email med gyldig format.<br>";
+            $inputError = true;
+        } else if ($user->email == $_POST['email']) {
+            echo "Du kan ikke endre din egen brukertype!<br>";
+            $inputError = true;
+        } else {
+            $email = $validator->cleanString($_POST['email']);
+        }
         $role = $_POST['role'];
-        $userDB->changeUserRoleInDB($email, $role);
+        if (isset($email) && $role == 'student' || $role == 'la' && !$inputError) {
+            $userDB->changeUserRoleInDB($email, $role);
+        } else {
+            echo "Noe gikk galt! Prøv på nytt.";
+        }
     }
 } else {
     echo "Skriv inn brukernavn og velg brukertype";
