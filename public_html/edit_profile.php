@@ -8,7 +8,7 @@ session_start();
 if (isset($_SESSION['userID']) && !empty($_SESSION['userID'])) {
     // Include the header, booking system template, and footer files
     include("../includes/header.inc.php");
-    include("../templates/profile.php");
+    include("../templates/edit_profile.php");
     include("../includes/footer.inc.php");
 } else {
     header('location:login.php');

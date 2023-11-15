@@ -62,3 +62,32 @@
 .navbar a:hover {
     background-color: #555;
 }
+
+.center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Style for the footer */
+footer {
+    background-color: #333; /* Background color */
+    color: #fff; /* Text color */
+    text-align: center; /* Center-align text */
+    padding: 20px; /* Padding around the content inside the footer */
+    position: fixed; /* Fixed position at the bottom of the viewport */
+    width: 100%; /* Full width */
+    bottom: 0; /* Stick to the bottom */
+  }
+  
+  /* Style for links inside the footer */
+  footer a {
+    color: #fff; /* Link color */
+    text-decoration: none; /* Remove underlines */
+  }
+  
+  /* Style for links on hover */
+  footer a:hover {
+    text-decoration: underline; /* Underline on hover */
+  }

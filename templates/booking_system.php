@@ -1,9 +1,9 @@
 <!-- Booking System -->
 <?php
 include("../classes/calender.php");
-include("../classes/reload.php");
+include_once("../classes/database.php");
 $calender = new Calender($pdo);
-$reload = new Reload($pdo, "weekdays");
+$reload = new Database($pdo);
 ?>
 
 <!-- A form for booking a tutor-guidance session -->
@@ -42,7 +42,7 @@ $reload = new Reload($pdo, "weekdays");
     $calender->createDay("friday");
 
     if (isset($_REQUEST['reset'])) {
-        $reload->reload($pdo);
+        $reload->reloadTables("weekdays");
     }
     ?>
 
