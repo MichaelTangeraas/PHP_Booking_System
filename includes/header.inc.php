@@ -18,19 +18,19 @@
         </div>
         <ul class="navbar">
             <?php if (isset($_SESSION['userID']) && !empty($_SESSION['userID'])) {
-                echo ("<li><a href='index.php'>Home</a></li>");
+                echo ("<li><a href='index.php'>Hjem</a></li>");
             }
 
             if (isset($_SESSION['userID']) && !empty($_SESSION['userID'])) {
-                echo ("<li><a href='profile.php'>Profile</a></li>");
+                echo ("<li><a href='profile.php'>Din profil</a></li>");
             } else {
-                echo ("<li><a href='sign_up.php'>Sign Up</a></li>");
+                echo ("<li><a href='sign_up.php'>Registrering</a></li>");
             }
 
             if (isset($_SESSION['userID']) && !empty($_SESSION['userID'])) {
-                echo ("<li><a href='../templates/logout.php'>Log out</a></li>");
+                echo ("<li><a href='../templates/logout.php'>Logg ut</a></li>");
             } else {
-                echo ("<li><a href='login.php'>Log in</a></li>");
+                echo ("<li><a href='login.php'>Logg inn</a></li>");
             }
 
             ?>

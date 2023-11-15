@@ -9,18 +9,17 @@ if (isset($_POST['reset'])) {
 }
 
 ?>
-
 <div class="center">
-    <h1>Log in</h1>
-    <p>Log in to your account</p>
+    <h1>Logg inn</h1>
+    <p>Logg inn på kontoen din</p>
     <form action="login.php" method="post">
         <label for="email">Email:</label><br>
         <input type="email" id="email" name="email" required><br>
-        <label for="password">Password:</label><br>
+        <label for="password">Passord:</label><br>
         <input type="password" id="password" name="password" required><br>
-        <input type="submit" value="Login" name="login">
+        <input type="submit" value="Logg inn" name="login">
     </form>
-    <p>Don't have an account? <a href="sign_up.php">Sign up</a></p>
+    <p>Har du ikke en konto? <a href="sign_up.php">Opprett en bruker</a></p>
 
     <?php
     // Check if login form is submitted
@@ -67,7 +66,7 @@ if (isset($_POST['reset'])) {
                 } else {
 
                     // Incorrect password
-                    echo "Feil passord";
+                    echo "Feil email eller passord";
                 }
             } else {
 

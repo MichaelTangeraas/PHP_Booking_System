@@ -50,6 +50,7 @@ class Database
         } catch (PDOException $e) {
             echo "Oi, her gikk det galt!";
         }
+        $this->pdo = null;
     }
 
     /**
@@ -108,6 +109,7 @@ class Database
                 echo "Oi, her gikk det galt!";
             }
         }
+        $this->pdo = null;
     }
 
     /**
@@ -147,5 +149,116 @@ class Database
             // If the query did not return any results, print a message
             echo "The query resulted in an empty result set.";
         }
+        $this->pdo = null;
+    }
+
+    function insertToDB($fname, $lname, $email, $password)
+    {
+        try {
+            // Prepare an SQL INSERT statement
+            $sql = "INSERT INTO `booking_users` (fname, lname, email, password) VALUES (:fname, :lname, :email, :password)";
+            // Set the PDO error mode to exception
+            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            // Prepare the statement
+            $query = $this->pdo->prepare($sql);
+
+            // Protect against SQL injections
+            $query->bindParam(':fname', $fname, PDO::PARAM_STR);
+            $query->bindParam(':lname', $lname, PDO::PARAM_STR);
+            $query->bindParam(':email', $email, PDO::PARAM_STR);
+            $query->bindParam(':password', $password, PDO::PARAM_STR);
+
+            // Execute the statement
+            $query->execute();
+        } catch (PDOException $e) {
+            // Print the error message if the insertion fails
+            echo $e->getMessage();
+        }
+        $this->pdo = null;
+    }
+
+    function deleteFromDB($userID)
+    {
+        // Prepare an SQL DELETE statement
+        $sql = "DELETE FROM `booking_users` WHERE userID = :userID";
+        // Set the PDO error mode to exception
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        // Prepare the statement
+        $query = $this->pdo->prepare($sql);
+
+        // Protect against SQL injections
+        $query->bindParam(':userID', $userID, PDO::PARAM_STR);
+
+        // Execute the statement
+        $query->execute();
+        $this->pdo = null;
+    }
+
+    // function for fetching user info from database
+    function fetchUserFromDB($userID)
+    {
+        // Prepare an SQL SELECT statement
+        $sql = "SELECT * FROM `booking_users` WHERE userID = :userID";
+        // Set the PDO error mode to exception
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        // Prepare the statement
+        $query = $this->pdo->prepare($sql);
+
+        // Protect against SQL injections
+        $query->bindParam(':userID', $userID, PDO::PARAM_STR);
+
+        // Execute the statement
+        $query->execute();
+
+        // Fetch the result as an object
+        $user = $query->fetch(PDO::FETCH_OBJ);
+
+        // Return the result
+        return $user;
+    }
+
+
+    function changeUserRoleInDB($email, $role){
+        $sql = "UPDATE booking_users SET role = :role WHERE email = :email;";
+        $query = $this->pdo->prepare($sql);
+        $query->bindParam(':email', $email, PDO::PARAM_STR);
+        $query->bindParam(':role', $role, PDO::PARAM_STR);
+        try {
+            $query->execute();
+        } catch (PDOException $e) {
+            echo "En bruker med denne emailen finnes ikke";
+            exit();
+        }
+        echo "Brukeren med email " . $email . " har nå rollen " . $role;
+    }
+
+    function updateUserInDB($fname, $lname, $email, $userID)
+    {
+        $sql = "UPDATE booking_users SET fname = :fname, lname = :lname, email = :email WHERE userID = $userID;";
+        $query = $this->pdo->prepare($sql);
+        $query->bindParam(':fname', $fname, PDO::PARAM_STR);
+        $query->bindParam(':lname', $lname, PDO::PARAM_STR);
+        $query->bindParam(':email', $email, PDO::PARAM_STR);
+        
+        try {
+            $query->execute();
+        } catch (PDOException $e) {
+            echo "En bruker med emailen ".$email." finnes allerede";
+            exit();
+        }
+        echo "Brukeren med email " . $email . " har blitt oppdatert";
+    }
+
+    function updatePasswordInDB($password, $userID){
+        $sql = "UPDATE booking_users SET password = :password WHERE userID = $userID;";
+        $query = $this->pdo->prepare($sql);
+        $query->bindParam(':password', $password, PDO::PARAM_STR);
+        try {
+            $query->execute();
+        } catch (PDOException $e) {
+            echo "Oi, her gikk det galt!";
+            exit();
+        }
+        echo "Passordet har blitt oppdatert";
     }
 }
