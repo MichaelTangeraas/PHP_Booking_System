@@ -28,37 +28,55 @@ class Database
     /**
      * Method to update the weekdays table
      * 
-     * This method updates the 'weekdays' table in the database. It sets the 'bookingInfo' column 
-     * to the value of $bookingInfo where 'timeDate' equals $timeDate.
+     * This method updates the 'weekdays' table in the database. It sets the 'bookingInfo' and 'userID' columns 
+     * to the values of $bookingInfo and $userID respectively, where 'timeDate' equals $timeDate and the 'userID' is either NULL or equals $userID.
      * 
      * @param string $bookingInfo The new booking information.
      * @param string $timeDate The time and date of the booking.
+     * @param int $userID The ID of the user making the booking.
      * 
      * @return void
      */
-    public function updateToDB($bookingInfo, $timeDate)
+    public function updateBookingToDB($bookingInfo, $timeDate, $userID)
     {
         // SQL query to update the bookingInfo column
-        $sql = "UPDATE weekdays SET bookingInfo = :bookingInfo WHERE timeDate = :timeDate";
+        $sql = "UPDATE weekdays SET bookingInfo = :bookingInfo, userID = :userID WHERE timeDate = :timeDate AND (userID IS NULL OR userID = :userID)";
         $query = $this->pdo->prepare($sql);
         $query->bindParam(':bookingInfo', $bookingInfo, PDO::PARAM_STR);
+        $query->bindParam(':userID', $userID, PDO::PARAM_INT);
         $query->bindParam(':timeDate', $timeDate, PDO::PARAM_STR);
 
         // Execute the query and handle any exceptions
         try {
             $query->execute();
         } catch (PDOException $e) {
-            echo "Oi, her gikk det galt!";
+            echo "Error querying database: " . $e->getMessage() . "<br>";
+        }
+        $this->pdo = null;
+    }
+
+    public function resetBookingToDB($timeDate)
+    {
+        // SQL query to update the bookingInfo column
+        $sql = "UPDATE weekdays SET bookingInfo = 'Ledig time', userID = NULL WHERE timeDate = :timeDate";
+        $query = $this->pdo->prepare($sql);
+        $query->bindParam(':timeDate', $timeDate, PDO::PARAM_STR);
+
+        // Execute the query and handle any exceptions
+        try {
+            $query->execute();
+        } catch (PDOException $e) {
+            echo "Error querying database: " . $e->getMessage() . "<br>"; // HUSK Å FJERN DETTE!!!!!!!
         }
         $this->pdo = null;
     }
 
     /**
-     * Method to reload tables
+     * Reloads the specified table.
      * 
      * This method drops the specified table if it exists, then recreates it.
-     * If the table is 'weekdays', it also inserts predefined values into the timeDate column.
-     * If the table is 'booking_users', it creates the table with userID, email, and password columns.
+     * If the table is 'weekdays', it also inserts predefined values into the 'timeDate' column.
+     * If the table is 'booking_users', it creates the table with 'userID', 'fname', 'lname', 'email', 'password', and 'role' columns.
      * 
      * @param string $table The name of the table to reload.
      * 
@@ -74,7 +92,9 @@ class Database
             CREATE TABLE weekdays (
                 primary_key INT AUTO_INCREMENT PRIMARY KEY,
                 timeDate VARCHAR(255),
-                bookingInfo VARCHAR(255) DEFAULT 'Ledig time'
+                bookingInfo VARCHAR(255) DEFAULT 'Ledig time',
+                userID INT(11) DEFAULT NULL,
+                CONSTRAINT `fk_userID` FOREIGN KEY (`userID`) REFERENCES `booking_users` (`userID`)
             );
         
             INSERT INTO weekdays (timeDate) VALUES
@@ -118,15 +138,14 @@ class Database
     /**
      * Method to select from the weekdays table
      * 
-     * This method selects all records from the weekdays table where timeDate equals the input.
-     * It then fetches all the results as objects and prints the bookingInfo for each result.
-     * If no results are found, it prints a message indicating that the query resulted in an empty result set.
+     * This method selects all records from the weekdays table where 'timeDate' equals the input.
+     * It then fetches the result as an object and returns it.
      * 
      * @param string $timeDate The time and date to select.
      * 
-     * @return void
+     * @return object Returns an object containing the booking information.
      */
-    function selectFromDB($timeDate)
+    function selectBookingFromDB($timeDate)
     {
         // SQL query to select all records where timeDate equals the input
         $sql = "SELECT * FROM weekdays WHERE timeDate = :timeDate";
@@ -140,19 +159,38 @@ class Database
             echo "Error querying database: " . $e->getMessage() . "<br>";
         }
 
-        // Fetch all the results as objects
-        $weekdays = $query->fetchAll(PDO::FETCH_OBJ);
-
-        // If the query returned results, print the bookingInfo for each result
-        if ($query->rowCount() > 0) {
-            foreach ($weekdays as $w) {
-                echo $w->bookingInfo;
-            }
-        } else {
-            // If the query did not return any results, print a message
-            echo "The query resulted in an empty result set.";
-        }
+        $weekdays = $query->fetch(PDO::FETCH_OBJ);
         $this->pdo = null;
+        return $weekdays;
+    }
+
+    /**
+     * Selects all bookings made by a specific user from the weekdays table.
+     *
+     * This function prepares a SQL query to select all records from the weekdays table where 'userID' equals the input.
+     * It binds the input parameter to the SQL query, executes the query, and handles any exceptions.
+     * It then fetches all the results as an array of objects and returns it.
+     *
+     * @param int $userID The ID of the user whose bookings to select.
+     * @return array Returns an array of objects containing the booking information for the specified user.
+     */
+    function selectUserBookingFromDB($userID)
+    {
+        // SQL query to select all records where timeDate equals the input
+        $sql = "SELECT * FROM weekdays WHERE userID = :userID";
+        $query = $this->pdo->prepare($sql);
+        $query->bindParam(':userID', $userID, PDO::PARAM_STR);
+
+        // Execute the query and handle any exceptions
+        try {
+            $query->execute();
+        } catch (PDOException $e) {
+            echo "Error querying database: " . $e->getMessage() . "<br>";
+        }
+
+        $weekdays = $query->fetchAll(PDO::FETCH_OBJ);
+        $this->pdo = null;
+        return $weekdays;
     }
 
     /**

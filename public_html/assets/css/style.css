@@ -1,26 +1,26 @@
 /* style.css */
 
-/* A grid container for the calendar */
+/* Grid container for the calendar */
 .main-grid-container {
     display: grid;
     grid-template-columns: 100px auto auto auto auto auto;
     margin: 50px;
 }
 
-/* A large grid item for the calendar */
+/* Large grid item for the calendar */
 .large-grid-item {
     border: 1px solid;
     font-size: 20px;
     text-align: center;
 }
 
-/* A grid container for the time section of the calendar */
+/* Grid container for the time section of the calendar */
 .grid-container {
     display: grid;
     grid-template-columns: auto;
 }
 
-/* A grid item for the time and day sections of the calendar */
+/* Grid item for the time and day sections of the calendar */
 .grid-item {
     border-bottom: 1px solid;
     padding: 10px;
@@ -28,6 +28,7 @@
     text-align: center;
 }
 
+/* Header with fixed position at the top of the viewport */
 .header {
     background-color: #333;
     color: #fff;
@@ -35,23 +36,30 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: fixed;
+    width: 100%;
+    top: 0;
 }
 
+/* Logo styling */
 .logo {
     margin: 0;
 }
 
+/* Navbar styling */
 .navbar {
     list-style-type: none;
     padding: 0;
     margin: 0;
 }
 
+/* Navbar list item styling */
 .navbar li {
     display: inline;
     margin: 0 10px;
 }
 
+/* Navbar link styling */
 .navbar a {
     text-decoration: none;
     color: #fff;
@@ -59,35 +67,42 @@
     border-radius: 5px;
 }
 
+/* Navbar link hover styling */
 .navbar a:hover {
     background-color: #555;
 }
 
+/* Center positioning */
 .center {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-  }
+}
 
-  /* Style for the footer */
+/* Footer styling with fixed position at the bottom of the viewport */
 footer {
-    background-color: #333; /* Background color */
-    color: #fff; /* Text color */
-    text-align: center; /* Center-align text */
-    padding: 20px; /* Padding around the content inside the footer */
-    position: fixed; /* Fixed position at the bottom of the viewport */
-    width: 100%; /* Full width */
-    bottom: 0; /* Stick to the bottom */
-  }
-  
-  /* Style for links inside the footer */
-  footer a {
-    color: #fff; /* Link color */
-    text-decoration: none; /* Remove underlines */
-  }
-  
-  /* Style for links on hover */
-  footer a:hover {
-    text-decoration: underline; /* Underline on hover */
-  }
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+}
+
+/* Footer link styling */
+footer a {
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Footer link hover styling */
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* Body styling to match the height of the header */
+body {
+    margin-top: 50px;
+}

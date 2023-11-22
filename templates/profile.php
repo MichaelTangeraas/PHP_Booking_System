@@ -9,7 +9,6 @@ $userDB = new Database($pdo);
 $user = $userDB->selectUserFromDBUserId($_SESSION['userID']);
 
 ?>
-
 <script>
     function confirmDelete() {
         var r = confirm("Er du sikker på at du vil slette denne brukeren?");
@@ -19,7 +18,7 @@ $user = $userDB->selectUserFromDBUserId($_SESSION['userID']);
     }
 </script>
 
-<div class="profile-view">
+<div>
     <?php
     if ($user->role == 'la') {
         echo "<h1>LA Profile</h1>";
@@ -47,7 +46,7 @@ $user = $userDB->selectUserFromDBUserId($_SESSION['userID']);
 
 <?php
 if ($user->role != 'la') {
-    exit();
+    return;
 }
 if (isset($_POST['email']) && $_POST['role'] != 'choose') {
 
