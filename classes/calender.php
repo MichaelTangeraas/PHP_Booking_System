@@ -6,7 +6,7 @@
  * A class that contains functions for creating a calendar and booking tutor-guidance sessions.
  */
 require_once('../includes/db.inc.php');
-include('database.php');
+include_once('database.php');
 class Calender
 {
     public $pdo;
@@ -14,22 +14,45 @@ class Calender
     {
         $this->pdo = $pdo;
     }
+
     /**
-     * Outputs the value of a booking based on the input fields if the submit button is pressed,
-     * or "Ledig" if no booking is set or the button has not been clicked.
+     * Outputs the value of a booking based on the input fields if the submit button is pressed.
+     * If no booking is set or the button has not been clicked, it outputs "Ledig".
      * 
      * @param string $timeDate The time and date of the booking.
      * @return void
      */
     public function newValue($timeDate)
     {
-        if (isset($_REQUEST['booking']) && $timeDate == $_REQUEST['day'] . $_REQUEST['time']) {
-            echo $_REQUEST['text'];
-            $update = new Database($this->pdo);
-            echo $update->updateToDB($_REQUEST['text'], $timeDate);
+        // Create a new Database connection
+        $conn = new Database($this->pdo);
+
+        // Check if a booking request has been made, the requested time matches the current time slot, and a user is logged in
+        if (isset($_REQUEST['booking']) && $timeDate == $_REQUEST['day'] . $_REQUEST['time'] && isset($_SESSION['userID']) && !empty($_SESSION['userID'])) {
+            // Get the user's ID
+            $userID = $_SESSION['userID'];
+
+            // Get the current booking for this time slot
+            $weekday = $conn->selectBookingFromDB($timeDate);
+
+            // If the time slot is not booked or is booked by the current user, update the booking
+            if ($weekday->userID == NULL || $weekday->userID == $userID) {
+                echo $conn->updateBookingToDB($_REQUEST['text'], $timeDate, $userID);
+            } else {
+                // If the time slot is booked by another user, show an error message and the booking info
+                echo '<script>alert("Denne veiledningstimen er opptatt.")</script>';
+                echo $weekday->bookingInfo;
+            }
         } else {
-            $select = new Database($this->pdo);
-            echo $select->selectFromDB($timeDate);
+            // If no booking request has been made, show the booking info for this time slot
+            $weekday = $conn->selectBookingFromDB($timeDate);
+            echo $weekday->bookingInfo;
+
+            // If the time slot is booked, show the user who booked it
+            if ($weekday->userID != NULL) {
+                $user = $conn->selectUserFromDBUserId($weekday->userID);
+                echo "<br /> Reservert av: " . $user->fname . " " . $user->lname . "<br>";
+            }
         }
     }
 
@@ -78,5 +101,35 @@ class Calender
             echo '</div>';
         }
         echo '</div></div>';
+    }
+
+    /**
+     * Creates and outputs the dates for a given week.
+     *
+     * This function sets the timezone to CET, then outputs the week number. It then creates an array of weekdays,
+     * sets the date to the first day of the given week, and creates a one day interval. It then loops over the weekdays,
+     * outputting each day's name and date, and increments the date by the interval.
+     *
+     * @param int $week The week number to create dates for.
+     * @return void
+     */
+    public function createDates($week)
+    {
+        date_default_timezone_set('CET');
+        echo '<div class="large-grid-item">Uke ' . $week . '</div>';
+        $days = array("Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag");
+
+        // Start date
+        $date = new DateTime();
+        $date->setISODate($date->format('Y'), $week); // Set to the first day of the week
+
+        // One day interval
+        $interval = new DateInterval('P1D');
+
+        // Loop over the week
+        for ($i = 0; $i < 5; $i++) {
+            echo "<div class='large-grid-item'>" . $days[$i] . " " . $date->format('d.m') . "</div>";
+            $date->add($interval);
+        }
     }
 }
