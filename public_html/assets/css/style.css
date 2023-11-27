@@ -12,6 +12,7 @@
     border: 1px solid;
     font-size: 20px;
     text-align: center;
+    background-color: #c7e6f3;
 }
 
 /* Grid container for the time section of the calendar */
@@ -26,6 +27,15 @@
     padding: 10px;
     font-size: 15px;
     text-align: center;
+    white-space: pre;
+}
+
+.grid-item:nth-child(odd) {
+    background-color: #f3f3f3; /* Replace with the color you want */
+}
+
+.grid-item:nth-child(even) {
+    background-color: #e6e6e6; /* Replace with the color you want */
 }
 
 /* Header with fixed position at the top of the viewport */
@@ -105,4 +115,5 @@ footer a:hover {
 /* Body styling to match the height of the header */
 body {
     margin-top: 50px;
+    margin-bottom: 120px;
 }

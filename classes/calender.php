@@ -52,6 +52,8 @@ class Calender
             if ($weekday->userID != NULL) {
                 $user = $conn->selectUserFromDBUserId($weekday->userID);
                 echo "<br /> Reservert av: " . $user->fname . " " . $user->lname . "<br>";
+            }else{
+                echo "<br /> ";
             }
         }
     }
@@ -72,7 +74,7 @@ class Calender
             $i++;
             echo '<div class="grid-item">';
             echo $time++ . ":00";
-            echo '</div>';
+            echo '<br> </div>';
         }
         echo '</div></div>';
     }
