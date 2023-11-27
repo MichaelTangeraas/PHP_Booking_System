@@ -113,8 +113,11 @@ class Calender
      * @param int $week The week number to create dates for.
      * @return void
      */
-    public function createDates($week)
+    public function createDates()
     {
+        $conn = new Database($this->pdo);
+        $week = $conn->selectBookingFromDB('monday8');
+        $week = $week->week;
         date_default_timezone_set('CET');
         echo '<div class="large-grid-item">Uke ' . $week . '</div>';
         $days = array("Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag");

@@ -99,7 +99,7 @@ $daysInNorwegian = [
 <div class="main-grid-container" style="border: 10px; width: 85%; height: auto;">
     <?php
     // Create the time and day sections of the calendar using functions from CalenderFunctions class
-    $calender->createDates(47);
+    $calender->createDates();
     $calender->createTime();
     $calender->createDay("monday");
     $calender->createDay("tuesday");
