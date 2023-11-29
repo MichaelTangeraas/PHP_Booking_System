@@ -28,7 +28,7 @@
             }
 
             if (isset($_SESSION['userID']) && !empty($_SESSION['userID'])) {
-                echo ("<li><a href='../templates/logout.php'>Logg ut</a></li>");
+                echo ("<li><a href='../public_html/logout.php'>Logg ut</a></li>");
             } else {
                 echo ("<li><a href='login.php'>Logg inn</a></li>");
             }

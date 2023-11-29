@@ -1,7 +1,6 @@
 <!-- HTML form for password updating -->
 
 <?php
-
 include_once('../includes/db.inc.php');
 include_once('../classes/database.php');
 include_once('../classes/inputvalidator.php');

@@ -2,12 +2,6 @@
 include("../classes/database.php");
 require_once('../includes/db.inc.php');
 
-if (isset($_POST['reset'])) {
-    $reload = new Database($pdo);
-    $reload->reloadTables("booking_users");
-    echo "Kjører";
-}
-
 ?>
 <div class="center">
     <?php
@@ -93,7 +87,3 @@ if (isset($_POST['reset'])) {
 
     ?>
 </div>
-
-<form action="login.php" method="post">
-    <input type="submit" value="Reset" name="reset">
-</form>
