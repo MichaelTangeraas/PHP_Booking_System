@@ -29,5 +29,9 @@ function logout()
 }
 
 logout();
+
+// Set a cookie with the flash message
+setcookie('temp_message', 'Du er nå logget ut av systemet.', time() + 3600, "/");
+
+// Redirect to the login page
 header('Location: ../public_html/login.php');
-echo "Logget ut";

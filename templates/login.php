@@ -10,6 +10,13 @@ if (isset($_POST['reset'])) {
 
 ?>
 <div class="center">
+    <?php
+    if (isset($_COOKIE['temp_message'])) {
+        echo "<b>" . $_COOKIE['temp_message'] . "</b>";
+        // Unset the flash message cookie
+        setcookie('temp_message', '', time() - 3600, "/");
+    }
+    ?>
     <h1>Logg inn</h1>
     <p>Logg inn på kontoen din</p>
     <form action="login.php" method="post">

@@ -15,6 +15,25 @@ class Calender
         $this->pdo = $pdo;
     }
 
+
+    /**
+     * Truncate a string to a specified length and append "..." if it's longer.
+     *
+     * @param string $string The string to be truncated.
+     * @param int $length The maximum length of the truncated string.
+     * @return string The truncated string.
+     */
+    public function shortString($string, $length)
+    {
+        // Check if the length of the string is greater than the specified length
+        if (strlen($string) > $length) {
+            // If it is, truncate the string to the specified length and append "..."
+            $string = substr($string, 0, $length) . "...";
+        }
+        // Return the truncated string
+        return $string;
+    }
+
     /**
      * Outputs the value of a booking based on the input fields if the submit button is pressed.
      * If no booking is set or the button has not been clicked, it outputs "Ledig".
@@ -41,18 +60,19 @@ class Calender
             } else {
                 // If the time slot is booked by another user, show an error message and the booking info
                 echo '<script>alert("Denne veiledningstimen er opptatt.")</script>';
-                echo $weekday->bookingInfo;
+                echo $this->shortString($weekday->bookingInfo, 15);
             }
         } else {
             // If no booking request has been made, show the booking info for this time slot
             $weekday = $conn->selectBookingFromDB($timeDate);
-            echo $weekday->bookingInfo;
+            echo $this->shortString($weekday->bookingInfo, 15);
 
             // If the time slot is booked, show the user who booked it
             if ($weekday->userID != NULL) {
+
                 $user = $conn->selectUserFromDBUserId($weekday->userID);
-                echo "<br /> Reservert av: " . $user->fname . " " . $user->lname . "<br>";
-            }else{
+                echo "<br /> Student: " . str_replace(".", "", ($this->shortString($user->fname, 1))) . "." . str_replace(".", "", ($this->shortString($user->lname, 1))) . ". <br>";
+            } else {
                 echo "<br /> ";
             }
         }

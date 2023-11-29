@@ -19,7 +19,6 @@ if (isset($_POST['delete'])) {
 
 // Check if a booking request has been made
 if (isset($_SESSION['userID'])) {
-    $userDB = new Database($pdo);
     $user = $conn->selectUserFromDBUserId($_SESSION['userID']);
     echo ("<h4 style='margin-left: 50px;'>Velkommen: " . ucfirst($user->role) . " - " . $user->fname . " " . $user->lname . "</h4>");
 } else {
