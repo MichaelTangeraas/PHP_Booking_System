@@ -10,10 +10,6 @@ if (isset($_REQUEST['booking'])) {
     header('Location: ../public_html/index.php');
 }
 
-if (isset($_REQUEST['la'])) {
-    //GJØR LA TILGJENGELIG
-}
-
 // Check if the delete button has been pressed. If it has, reset the booking and refresh the page.
 if (isset($_POST['delete'])) {
     $timeDate = $_POST['timeDate']; // Get the timeDate value from the form
@@ -27,6 +23,10 @@ if (isset($_SESSION['userID'])) {
     echo ("<h4 style='margin-left: 50px;'>Velkommen: " . ucfirst($user->role) . " - " . $user->fname . " " . $user->lname . "</h4>");
 } else {
     echo ("<h4 style='margin-left: 50px;'>Funket ikke</h4>");
+}
+
+if (isset($_REQUEST['la']) && isset($_POST['day']) && $_POST['day'] != "Dag" && isset($_POST['time'])) {
+    $conn->setAvailableLAinDB($_REQUEST['day'] . $_REQUEST['time'], $user->fname . " " . $user->lname);
 }
 
 // An array for converting the days to Norwegian
@@ -88,9 +88,21 @@ if (empty($bookings)) {
 
 <h1 style="margin-left: 50px;">Booking system</h1>
 <p style="margin-left: 50px;">
+    <?php
+    if ($user->role == "student") {
+        echo <<<EOD
     Fyll inn feltet under for å booke en ønsket veiledningstime.
     <br />
     For å endre eksisterende booking, overskriv den med ny informasjon.
+    EOD;
+    } else {
+        echo <<<EOD
+    Fyll inn feltene under for å gjøre deg selv selv som tilgjengelig hjelpelærere ved bestemt tidspunkt.
+    <br />
+    Du kan overskrive andre hjelpelærere sine tilgjengelige tidspunkt.
+    EOD;
+    }
+    ?>
 </p>
 
 <!-- A form for booking a tutor-guidance session -->

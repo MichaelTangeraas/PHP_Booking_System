@@ -439,7 +439,7 @@ class Database
 
     function deleteUserBookingsInDB($userID)
     {
-        // Prepare an SQL DELETE statement
+        // Prepare an SQL UPDATE statement
         $sql = "UPDATE weekdays SET bookingInfo = 'Ledig time', userID = NULL WHERE userID = :userID";
         // Prepare the statement
         $query = $this->pdo->prepare($sql);
@@ -452,8 +452,19 @@ class Database
         //$this->pdo = null;
     }
 
-    function setAvailableLAinDB(){
-        echo "hei";
+    function setAvailableLAinDB($timeDate, $laName){
+        // Prepare an SQL UPDATE statement
+        $sql = "UPDATE weekdays SET la = :laName, userID = NULL WHERE timeDate = :timeDate";
+        // Prepare the statement
+        $query = $this->pdo->prepare($sql);
+
+        // Protect against SQL injections
+        $query->bindParam(':timeDate', $timeDate, PDO::PARAM_STR);
+        $query->bindParam(':laName', $laName, PDO::PARAM_STR);
+
+        // Execute the statement
+        $query->execute();
+        //$this->pdo = null;
     }
 
     function closeDB($object){
