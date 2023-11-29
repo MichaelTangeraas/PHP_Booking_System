@@ -37,12 +37,16 @@ class Database
      * 
      * @return void
      */
-    public function updateBookingToDB($bookingInfo, $timeDate, $userID)
+    public function updateBookingToDB($bookingInfo, $bookingDescription, $timeDate, $userID)
     {
+        if ($bookingDescription == "") {
+            $bookingDescription = "Ingen beskrivelse";
+        }
         // SQL query to update the bookingInfo column
-        $sql = "UPDATE weekdays SET bookingInfo = :bookingInfo, userID = :userID WHERE timeDate = :timeDate AND (userID IS NULL OR userID = :userID)";
+        $sql = "UPDATE weekdays SET bookingInfo = :bookingInfo, bookingDescription = :bookingDescription, userID = :userID WHERE timeDate = :timeDate AND (userID IS NULL OR userID = :userID)";
         $query = $this->pdo->prepare($sql);
         $query->bindParam(':bookingInfo', $bookingInfo, PDO::PARAM_STR);
+        $query->bindParam(':bookingDescription', $bookingDescription, PDO::PARAM_STR);
         $query->bindParam(':userID', $userID, PDO::PARAM_INT);
         $query->bindParam(':timeDate', $timeDate, PDO::PARAM_STR);
 
@@ -58,7 +62,7 @@ class Database
     public function resetBookingToDB($timeDate)
     {
         // SQL query to update the bookingInfo column
-        $sql = "UPDATE weekdays SET bookingInfo = 'Ledig time', userID = NULL WHERE timeDate = :timeDate";
+        $sql = "UPDATE weekdays SET bookingInfo = 'Ledig time', userID = NULL, la = NULL WHERE timeDate = :timeDate";
         $query = $this->pdo->prepare($sql);
         $query->bindParam(':timeDate', $timeDate, PDO::PARAM_STR);
 
@@ -95,7 +99,9 @@ class Database
                 week int(2) DEFAULT '$week',
                 timeDate VARCHAR(255),
                 bookingInfo VARCHAR(255) DEFAULT 'Ledig time',
+                bookingDescription VARCHAR(255) DEFAULT 'Ingen beskrivelse',
                 userID INT(11) DEFAULT NULL,
+                la VARCHAR(255) DEFAULT NULL,
                 CONSTRAINT `fk_userID` FOREIGN KEY (`userID`) REFERENCES `booking_users` (`userID`)
             );
         
@@ -137,7 +143,17 @@ class Database
         //$this->pdo = null;
     }
 
-    function updateWeekInDB($week){
+    /**
+     * Updates the 'week' field in the 'weekdays' table with the provided 'week' value.
+     *
+     * @param int $week The week number to be updated in the 'week' field.
+     *
+     * @return void
+     *
+     * @throws PDOException If there is an error executing the query.
+     */
+    function updateWeekInDB($week)
+    {
         $sql = "UPDATE weekdays SET week = :week";
         $query = $this->pdo->prepare($sql);
         $query->bindParam(':week', $week, PDO::PARAM_INT);
@@ -194,6 +210,34 @@ class Database
     {
         // SQL query to select all records where timeDate equals the input
         $sql = "SELECT * FROM weekdays WHERE userID = :userID";
+        $query = $this->pdo->prepare($sql);
+        $query->bindParam(':userID', $userID, PDO::PARAM_STR);
+
+        // Execute the query and handle any exceptions
+        try {
+            $query->execute();
+        } catch (PDOException $e) {
+            echo "Error querying database: " . $e->getMessage() . "<br>";
+        }
+
+        $weekdays = $query->fetchAll(PDO::FETCH_OBJ);
+        //$this->pdo = null;
+        return $weekdays;
+    }
+
+    /**
+     * Selects all records from the 'weekdays' table where 'la' equals the provided 'userID'.
+     *
+     * @param int $userID The user ID to match against the 'la' field.
+     *
+     * @return array An array of objects representing the matching records.
+     *
+     * @throws PDOException If there is an error querying the database.
+     */
+    function selectLaBookingFromDB($userID)
+    {
+        // SQL query to select all records where timeDate equals the input
+        $sql = "SELECT * FROM weekdays WHERE la = :userID";
         $query = $this->pdo->prepare($sql);
         $query->bindParam(':userID', $userID, PDO::PARAM_STR);
 
@@ -437,7 +481,83 @@ class Database
         echo "Passordet har blitt oppdatert";
     }
 
-    function closeDB($object){
+    /**
+     * Deletes the user bookings in the 'weekdays' table for a specific 'userID'.
+     *
+     * @param int $userID The user ID for which the bookings should be deleted.
+     *
+     * @return void
+     */
+    function deleteUserBookingsInDB($userID)
+    {
+        // Prepare an SQL UPDATE statement
+        $sql = "UPDATE weekdays SET bookingInfo = 'Ledig time', userID = NULL WHERE userID = :userID";
+        // Prepare the statement
+        $query = $this->pdo->prepare($sql);
+
+        // Protect against SQL injections
+        $query->bindParam(':userID', $userID, PDO::PARAM_INT);
+
+        // Execute the statement
+        $query->execute();
+        //$this->pdo = null;
+    }
+
+    /**
+     * Deletes the 'la' bookings in the 'weekdays' table for a specific 'userID'.
+     *
+     * @param int $userID The user ID for which the 'la' bookings should be deleted.
+     *
+     * @return void
+     */
+    function deleteLaBookingsInDB($userID)
+    {
+        // Prepare an SQL UPDATE statement
+        $sql = "UPDATE weekdays SET la = NULL WHERE la = :userID";
+        // Prepare the statement
+        $query = $this->pdo->prepare($sql);
+
+        // Protect against SQL injections
+        $query->bindParam(':userID', $userID, PDO::PARAM_INT);
+
+        // Execute the statement
+        $query->execute();
+        //$this->pdo = null;
+    }
+
+    /**
+     * Updates the 'la' field in the 'weekdays' table for a specific 'timeDate'.
+     *
+     * @param string $timeDate The date and time for which the 'la' field should be updated.
+     * @param string $laName The new value for the 'la' field.
+     *
+     * @return void
+     */
+    function setAvailableLAinDB($timeDate, $laName)
+    {
+        // Prepare an SQL UPDATE statement
+        $sql = "UPDATE weekdays SET la = :laName WHERE timeDate = :timeDate";
+        // Prepare the statement
+        $query = $this->pdo->prepare($sql);
+
+        // Protect against SQL injections
+        $query->bindParam(':timeDate', $timeDate, PDO::PARAM_STR);
+        $query->bindParam(':laName', $laName, PDO::PARAM_STR);
+
+        // Execute the statement
+        $query->execute();
+        $_SESSION['temp_message'] = "Tilgjengelighet er registrert";
+    }
+
+    /**
+     * Closes the database connection and unsets the provided object.
+     *
+     * @param mixed $object The object to be unset.
+     *
+     * @return void
+     */
+    function closeDB($object)
+    {
         $this->pdo = null;
         unset($object);
     }

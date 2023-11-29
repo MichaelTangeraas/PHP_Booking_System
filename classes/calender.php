@@ -56,11 +56,11 @@ class Calender
 
             // If the time slot is not booked or is booked by the current user, update the booking
             if ($weekday->userID == NULL || $weekday->userID == $userID) {
-                echo $conn->updateBookingToDB($_REQUEST['text'], $timeDate, $userID);
+                $_SESSION['temp_message'] = "Veiledningen er booket";
+                // Set a flash message cookie
+                echo $conn->updateBookingToDB($_REQUEST['text'], $_POST['textDesc'], $timeDate, $userID);
             } else {
-                // If the time slot is booked by another user, show an error message and the booking info
-                echo '<script>alert("Denne veiledningstimen er opptatt.")</script>';
-                echo $this->shortString($weekday->bookingInfo, 15);
+                $_SESSION['temp_message'] = "Veiledningen er opptatt";
             }
         } else {
             // If no booking request has been made, show the booking info for this time slot
@@ -70,8 +70,11 @@ class Calender
             // If the time slot is booked, show the user who booked it
             if ($weekday->userID != NULL) {
 
-                $user = $conn->selectUserFromDBUserId($weekday->userID);
-                echo "<br /> Student: " . str_replace(".", "", ($this->shortString($user->fname, 1))) . "." . str_replace(".", "", ($this->shortString($user->lname, 1))) . ". <br>";
+                $student = $conn->selectUserFromDBUserId($weekday->userID);
+                echo "<br /> Student: " . str_replace(".", "", ($this->shortString($student->fname, 1))) . "." . str_replace(".", "", ($this->shortString($student->lname, 1))) . ". <br>";
+            } else if ($weekday->la != NULL) {
+                $la = $conn->selectUserFromDBUserId($weekday->la);
+                echo "<br /> LA: " . str_replace(".", "", ($this->shortString($la->fname, 1))) . "." . str_replace(".", "", ($this->shortString($la->lname, 1))) . ". <br>";
             } else {
                 echo "<br /> ";
             }

@@ -38,6 +38,13 @@
     background-color: #e6e6e6; /* Replace with the color you want */
 }
 
+/* Custome table item */
+.th-item{
+    background-color: #c7e6f3;
+    border: 1px solid black; 
+    /* padding: 8px; */
+}
+
 /* Header with fixed position at the top of the viewport */
 .header {
     background-color: #333;
@@ -88,6 +95,11 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+/* Margin styling */
+.margin {
+    margin-left: 50px;
 }
 
 /* Footer styling with fixed position at the bottom of the viewport */

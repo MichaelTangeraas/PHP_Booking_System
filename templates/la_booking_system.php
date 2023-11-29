@@ -2,8 +2,6 @@
 <?php
 include("../classes/calender.php");
 include_once("../classes/database.php");
-
-// Initialize the database connection and the calender
 $calender = new Calender($pdo);
 $conn = new Database($pdo);
 
@@ -27,6 +25,10 @@ if (isset($_SESSION['userID'])) {
     echo ("<h4 class='margin'>Woops, her er noe galt!</h4>");
 }
 
+if (isset($_REQUEST['la']) && isset($_POST['day']) && $_POST['day'] != "Dag" && isset($_POST['time'])) {
+    $conn->setAvailableLAinDB($_REQUEST['day'] . $_REQUEST['time'], $user->userID);
+}
+
 // An array for converting the days to Norwegian
 $daysInNorwegian = [
     "monday" => "Mandag",
@@ -39,12 +41,12 @@ $daysInNorwegian = [
 ?>
 
 <!-- Overview of current user bookings -->
-
-<h1 class="margin">Dine bookinger</h1>
 <?php
-// Get the user's bookings
-$userBookings = $conn->selectUserBookingFromDB($_SESSION['userID']);
-if (empty($userBookings) && empty($laBookings)) {
+echo "<h2 class='margin'>Dine kommende veiledningstimer</h2>";
+// Get the la's bookings
+$laBookings = $conn->selectLaBookingFromDB($_SESSION['userID']);
+
+if (empty($laBookings)) {
     echo "<p class='margin'>Du har ingen bookinger.</p>";
 } else {
 ?>
@@ -53,12 +55,13 @@ if (empty($userBookings) && empty($laBookings)) {
             <th class="th-item">Booking info</th>
             <th class="th-item">Tid og dato</th>
             <th class="th-item">Beskrivelse</th>
-            <th class="th-item">LA</th>
+            <th class="th-item">Student</th>
         </tr>
     <?php
-    // Display the bookings
-    foreach ($userBookings as $booking) {
-        if ($booking->userID == $_SESSION['userID']) {
+}
+if ($user->role == "la") {
+    foreach ($laBookings as $booking) {
+        if ($booking->la == $_SESSION['userID']) {
             echo "<tr>";
             echo "<td style='border: 1px solid black; padding: 8px;'>" . $booking->bookingInfo . "</td>";
             $timeDate = $booking->timeDate;
@@ -70,11 +73,11 @@ if (empty($userBookings) && empty($laBookings)) {
 
             echo "<td style='border: 1px solid black; padding: 8px;'>" . $formattedTimeDate . "</td>";
             echo "<td style='border: 1px solid black; padding: 8px;'>" . $booking->bookingDescription . "</td>";
-            $la = $conn->selectUserFromDBUserId($booking->la);
-            if ($la == NULL) {
-                echo "<td style='border: 1px solid black; padding: 8px;'>Ingen LA</td>";
+            $student = $conn->selectUserFromDBUserId($booking->userID);
+            if ($student == NULL) {
+                echo "<td style='border: 1px solid black; padding: 8px;'>Ingen booking</td>";
             } else {
-                echo "<td style='border: 1px solid black; padding: 8px;'>" . $la->fname . " " . $la->lname . "</td>";
+                echo "<td style='border: 1px solid black; padding: 8px;'>" . $student->fname . " " . $student->lname . "</td>";
             }
             echo "<td><form method='post' action=''>";
             echo "<input type='hidden' name='timeDate' value='" . $booking->timeDate . "'>"; // Add the hidden input field
@@ -91,14 +94,13 @@ if (empty($userBookings) && empty($laBookings)) {
 
     <h1 class="margin">Booking system</h1>
     <p class="margin">
-        Fyll inn feltet under for å booke en ønsket veiledningstime.
+        Fyll inn feltene under for å gjøre deg selv selv som tilgjengelig hjelpelærere ved bestemt tidspunkt.
         <br />
-        For å endre eksisterende booking, overskriv den med ny informasjon.
+        Du kan overskrive andre hjelpelærere sine tilgjengelige tidspunkt.
     </p>
 
     <!-- A form for booking a tutor-guidance session -->
     <form method="post" action="" id="bookingForm" class="margin" style="margin-top:15px;">
-        <input type="text" name="text" placeholder="Tittel for veiledning">
         <select name="day" form="bookingForm">
             <option value="day" hidden selected>Dag</option>
             <option value="monday">Mandag</option>
@@ -108,9 +110,7 @@ if (empty($userBookings) && empty($laBookings)) {
             <option value="friday">Fredag</option>
         </select>
         <input type="number" name="time" min="8" max="17" placeholder="Tid">
-        <input type="submit" name="booking" value="Book veiledning">
-        <br>
-        <textarea name="textDesc" rows="4" cols="39" placeholder="Beskrivelse for veiledning"></textarea>
+        <input type="submit" name="la" value="Gjør tilgjengelig">
         <?php
         if (isset($_SESSION['temp_message'])) {
             echo "<b>" . $_SESSION['temp_message'] . "</b>";
@@ -119,8 +119,6 @@ if (empty($userBookings) && empty($laBookings)) {
         }
         ?>
     </form>
-
-
 
     <!-- A grid for displaying the calendar -->
     <div class="main-grid-container" style="border: 10px; width: 85%; height: auto;">
