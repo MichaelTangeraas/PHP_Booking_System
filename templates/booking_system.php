@@ -10,6 +10,10 @@ if (isset($_REQUEST['booking'])) {
     header('Location: ../public_html/index.php');
 }
 
+if (isset($_REQUEST['la'])) {
+    //GJØR LA TILGJENGELIG
+}
+
 // Check if the delete button has been pressed. If it has, reset the booking and refresh the page.
 if (isset($_POST['delete'])) {
     $timeDate = $_POST['timeDate']; // Get the timeDate value from the form
@@ -39,36 +43,46 @@ $daysInNorwegian = [
 <!-- Overview of current user bookings -->
 
 <h2 style="margin-left: 50px;">Dine bookinger</h2>
-<table style="margin-left: 50px;">
-    <tr>
-        <th style="border: 1px solid black; padding: 8px;">Booking info</th>
-        <th style="border: 1px solid black; padding: 8px;">Tid og dato</th>
-        <th>Avbestill booking</th>
-    </tr>
-    <?php
-    // Get the bookings from the database
-    $bookings = $conn->selectUserBookingFromDB($_SESSION['userID']);
-    // Display the bookings
-    foreach ($bookings as $booking) {
-        if ($booking->userID == $_SESSION['userID']) {
-            echo "<tr>";
-            echo "<td style='border: 1px solid black; padding: 8px;'>" . $booking->bookingInfo . "</td>";
-            $timeDate = $booking->timeDate;
-            $dayOfWeek = preg_replace('/[0-9]+/', '', $timeDate); // Remove all numbers
-            $dayOfWeekNorwegian = $daysInNorwegian[$dayOfWeek]; // Convert the day to Norwegian
-            $time = preg_replace('/\D/', '', $timeDate); // Remove all non-numbers
+<?php
+// Get the bookings from the database
+$bookings = $conn->selectUserBookingFromDB($_SESSION['userID']);
+// Check if a booking request has been made
+if (empty($bookings)) {
+    echo "<p style='margin-left: 50px;'>Du har ingen bookinger.</p>";
+} else {
+?>
+    <table style="margin-left: 50px;">
+        <tr>
+            <th class="th-test">Booking info</th>
+            <th class="th-test">Tid og dato</th>
+            <!-- <th>Manipuler</th> -->
+        </tr>
+        <?php
+        // Display the bookings
+        foreach ($bookings as $booking) {
+            if ($booking->userID == $_SESSION['userID']) {
+                echo "<tr>";
+                echo "<td style='border: 1px solid black; padding: 8px;'>" . $booking->bookingInfo . "</td>";
+                $timeDate = $booking->timeDate;
+                $dayOfWeek = preg_replace('/[0-9]+/', '', $timeDate); // Remove all numbers
+                $dayOfWeekNorwegian = $daysInNorwegian[$dayOfWeek]; // Convert the day to Norwegian
+                $time = preg_replace('/\D/', '', $timeDate); // Remove all non-numbers
 
-            $formattedTimeDate = $dayOfWeekNorwegian . " kl. " . $time;
+                $formattedTimeDate = $dayOfWeekNorwegian . " kl. " . $time;
 
-            echo "<td style='border: 1px solid black; padding: 8px;'>" . $formattedTimeDate . "</td>";
-            echo "<td><form method='post' action=''>";
-            echo "<input type='hidden' name='timeDate' value='" . $booking->timeDate . "'>"; // Add the hidden input field
-            echo "<input type='submit' name='delete' value='Avbestill'></form></td>";
-            echo "</tr>";
+                echo "<td style='border: 1px solid black; padding: 8px;'>" . $formattedTimeDate . "</td>";
+                echo "<td><form method='post' action=''>";
+                echo "<input type='hidden' name='timeDate' value='" . $booking->timeDate . "'>"; // Add the hidden input field
+                echo "<input type='submit' name='delete' value='Avbestill'></form></td>";
+                echo "</tr>";
+            }
         }
-    }
-    ?>
-</table>
+        ?>
+    </table>
+<?php
+}
+?>
+
 
 <!-- Booking form -->
 
@@ -81,7 +95,11 @@ $daysInNorwegian = [
 
 <!-- A form for booking a tutor-guidance session -->
 <form method="post" action="" id="bookingForm" style="margin-left: 50px;margin-top:15px;">
-    <input type="text" name="text" placeholder="Booking info">
+    <?php
+    if ($user->role == "student") {
+        echo '<input type="text" name="text" placeholder="Booking info">';
+    }
+    ?>
     <select name="day" form="bookingForm">
         <option value="day" hidden selected>Dag</option>
         <option value="monday">Mandag</option>
@@ -91,7 +109,20 @@ $daysInNorwegian = [
         <option value="friday">Fredag</option>
     </select>
     <input type="number" name="time" min="8" max="17" placeholder="Tid">
-    <input type="submit" name="booking" value="Book veiledning">
+    <?php
+    if ($user->role == "student") {
+        echo '<input type="submit" name="booking" value="Book veiledning">';
+    } else {
+        echo '<input type="submit" name="la" value="Gjør tilgjengelig">';
+    }
+    ?>
+    <?php
+    if (isset($_COOKIE['temp_message'])) {
+        echo "<b>" . $_COOKIE['temp_message'] . "</b>";
+        // Unset the flash message cookie
+        setcookie('temp_message', '', time() - 3600, "/");
+    }
+    ?>
 </form>
 
 <!-- A grid for displaying the calendar -->

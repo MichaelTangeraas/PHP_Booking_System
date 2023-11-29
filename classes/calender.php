@@ -58,9 +58,7 @@ class Calender
             if ($weekday->userID == NULL || $weekday->userID == $userID) {
                 echo $conn->updateBookingToDB($_REQUEST['text'], $timeDate, $userID);
             } else {
-                // If the time slot is booked by another user, show an error message and the booking info
-                echo '<script>alert("Denne veiledningstimen er opptatt.")</script>';
-                echo $this->shortString($weekday->bookingInfo, 15);
+                setcookie('temp_message', 'Veiledningen er opptatt', time() + 3600, "/");
             }
         } else {
             // If no booking request has been made, show the booking info for this time slot

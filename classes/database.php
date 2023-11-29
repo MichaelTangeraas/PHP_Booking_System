@@ -437,6 +437,25 @@ class Database
         echo "Passordet har blitt oppdatert";
     }
 
+    function deleteUserBookingsInDB($userID)
+    {
+        // Prepare an SQL DELETE statement
+        $sql = "UPDATE weekdays SET bookingInfo = 'Ledig time', userID = NULL WHERE userID = :userID";
+        // Prepare the statement
+        $query = $this->pdo->prepare($sql);
+
+        // Protect against SQL injections
+        $query->bindParam(':userID', $userID, PDO::PARAM_INT);
+
+        // Execute the statement
+        $query->execute();
+        //$this->pdo = null;
+    }
+
+    function setAvailableLAinDB(){
+        echo "hei";
+    }
+
     function closeDB($object){
         $this->pdo = null;
         unset($object);
