@@ -19,7 +19,6 @@ if (isset($_POST['delete'])) {
 
 // Check if a booking request has been made
 if (isset($_SESSION['userID'])) {
-    $userDB = new Database($pdo);
     $user = $conn->selectUserFromDBUserId($_SESSION['userID']);
     echo ("<h4 style='margin-left: 50px;'>Velkommen: " . ucfirst($user->role) . " - " . $user->fname . " " . $user->lname . "</h4>");
 } else {
@@ -99,7 +98,7 @@ $daysInNorwegian = [
 <div class="main-grid-container" style="border: 10px; width: 85%; height: auto;">
     <?php
     // Create the time and day sections of the calendar using functions from CalenderFunctions class
-    $calender->createDates(47);
+    $calender->createDates();
     $calender->createTime();
     $calender->createDay("monday");
     $calender->createDay("tuesday");

@@ -74,6 +74,27 @@ if (isset($_POST['email']) && $_POST['role'] != 'choose') {
 } else {
     echo "Skriv inn brukernavn og velg brukertype";
 }
+
+if (isset($_POST['changeWeek'])) {
+    $validator = new InputValidator();
+    $inputError = false;
+    $week = $validator->cleanString($_POST['weekNumber']);
+    if ($week < 1 || $week > 52) {
+        $ukemelding = "Ukenummeret må være mellom 1 og 52!<br>";
+        $inputError = true;
+    }
+    if (!$inputError) {
+        $userDB->updateWeekInDB($week);
+        $ukemelding = "Ukenummeret er oppdatert!";
+    } else {
+        $ukemelding = "Noe gikk galt! Prøv på nytt.";
+    }
+}else{
+    $ukemelding = "Velg et ukenummer mellom 1 og 52";
+}
+if (isset($_REQUEST['reset'])) {
+    $userDB->reloadTables("weekdays");
+}
 ?>
 
 <form method="post" action="">
@@ -84,4 +105,14 @@ if (isset($_POST['email']) && $_POST['role'] != 'choose') {
         <option value="la">Læringsassistent</option>
     </select>
     <input type="submit" name="changeUserRole" value="Bytt brukertype">
+</form>
+
+<form method="post" action="">
+    <label for="weekNumber"><br><?= $ukemelding ?><br></label>
+    <input type="number" name="weekNumber" placeholder="Uke" min="1" max="52"  value="<?php $week = $userDB->selectBookingFromDB('monday8'); echo $week->week?>" required>
+    <input type="submit" name="changeWeek" value="Bytt til ny uke">
+</form>
+<form method="post" action="">
+    <label for="weekNumber"><br>Tilbakestill alle bookinger (setter ukenummer til neste uke)<br></label>
+    <input type="submit" name="reset" value="Tilbakestill">
 </form>

@@ -11,8 +11,7 @@ require_once('../classes/inputvalidator.php');
 if (isset($_POST['register'])) {
 
     // Check if the email and password fields are not empty
-    if ($_POST['fname'] != "" || $_POST['lname'] != "" || $_POST['email'] != "" || $_POST['password'] != "") 
-    {
+    if ($_POST['fname'] != "" || $_POST['lname'] != "" || $_POST['email'] != "" || $_POST['password'] != "") {
         $validator = new InputValidator();
         $inputError = false;
 
@@ -52,8 +51,11 @@ if (isset($_POST['register'])) {
         if (isset($fname) && isset($lname) && isset($email) && isset($password) && !$inputError) {
             $insert = new Database($pdo);
             $insert->insertToDB($fname, $lname, $email, $password);
-            // Redirect the user to login.php
-            // header('location:login.php');
+
+            // Set a flash message cookie
+            setcookie('temp_message', 'Brukeren ble opprettet!', time() + 3600, "/");
+            //Redirect the user to login.php
+            header('location:login.php');
         }
     } else {
         // Print a message if the fields are empty and redirect the user to the registration page

@@ -52,7 +52,7 @@ class Database
         } catch (PDOException $e) {
             echo "Error querying database: " . $e->getMessage() . "<br>";
         }
-        $this->pdo = null;
+        //$this->pdo = null;
     }
 
     public function resetBookingToDB($timeDate)
@@ -68,7 +68,7 @@ class Database
         } catch (PDOException $e) {
             echo "Error querying database: " . $e->getMessage() . "<br>"; // HUSK Å FJERN DETTE!!!!!!!
         }
-        $this->pdo = null;
+        //$this->pdo = null;
     }
 
     /**
@@ -86,11 +86,13 @@ class Database
     {
         // If the table is 'weekdays'
         if ($table == 'weekdays') {
+            $week = date("W") + 1; // Get the current week number of the next week
             // SQL query to drop and recreate the weekdays table
             $sql = "DROP TABLE IF EXISTS weekdays;
 
             CREATE TABLE weekdays (
                 primary_key INT AUTO_INCREMENT PRIMARY KEY,
+                week int(2) DEFAULT '$week',
                 timeDate VARCHAR(255),
                 bookingInfo VARCHAR(255) DEFAULT 'Ledig time',
                 userID INT(11) DEFAULT NULL,
@@ -132,7 +134,20 @@ class Database
                 echo "Oi, her gikk det galt!";
             }
         }
-        $this->pdo = null;
+        //$this->pdo = null;
+    }
+
+    function updateWeekInDB($week){
+        $sql = "UPDATE weekdays SET week = :week";
+        $query = $this->pdo->prepare($sql);
+        $query->bindParam(':week', $week, PDO::PARAM_INT);
+
+        // Execute the query and handle any exceptions
+        try {
+            $query->execute();
+        } catch (PDOException $e) {
+            echo "Oi, her gikk det galt!";
+        }
     }
 
     /**
@@ -160,7 +175,8 @@ class Database
         }
 
         $weekdays = $query->fetch(PDO::FETCH_OBJ);
-        $this->pdo = null;
+        //$this->pdo = null;
+        //LINJEN OVER GJØR AT MAN IKKE KAN KJØRE FLERE SQL QUERIES ETTER DENNE
         return $weekdays;
     }
 
@@ -189,7 +205,7 @@ class Database
         }
 
         $weekdays = $query->fetchAll(PDO::FETCH_OBJ);
-        $this->pdo = null;
+        //$this->pdo = null;
         return $weekdays;
     }
 
@@ -227,7 +243,7 @@ class Database
             // Print the error message if the insertion fails. In almost all cases this will be due to a duplicate email address.
             echo "En bruker med mailen " . $email . " finnes allerede";
         }
-        $this->pdo = null;
+        //$this->pdo = null;
     }
 
     /**
@@ -253,7 +269,7 @@ class Database
 
         // Execute the statement
         $query->execute();
-        $this->pdo = null;
+        //$this->pdo = null;
     }
 
     /**
@@ -420,4 +436,32 @@ class Database
         // Print a success message
         echo "Passordet har blitt oppdatert";
     }
+
+    function closeDB($object){
+        $this->pdo = null;
+        unset($object);
+    }
+
+    ## FORSLAG TIL HVORDAN VI KAN LUKKE DB CONNECTION ##
+    #start av fil#
+    /*
+    $close = false;
+    $conn = new Database($pdo);
+    if ("something"){
+        $close = false;
+        //do something related to DB
+        $close = true;
+    }
+    if ("something else"){
+        $close = false;
+        //do something else related to DB
+        $close = true;
+    }
+
+    // Checked after all DB related code has possibly or actually been executed
+    if ($close) {
+        $conn->closeDB($conn);
+    }
+    */
+    #slutt av fil#
 }

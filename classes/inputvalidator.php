@@ -77,7 +77,7 @@ class InputValidator
     {
         // Check if the input is a valid password
         // A valid password must contain at least one uppercase letter, two digits, one special character, and be at least 9 characters long
-        if (preg_match('/^(?=.*[A-ZÆØÅ])(?=.*\d{2,})(?=.*[^a-zA-ZÆØÅæøå\d]).{4,}$/', $password)) {
+        if (preg_match('/^(?=.*[A-ZÆØÅ])(?=.*\d{2,})(?=.*[^a-zA-ZÆØÅæøå\d]).{9,}$/', $password)) {
             return true;
         } else {
             return false;
