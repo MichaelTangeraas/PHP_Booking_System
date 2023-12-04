@@ -25,8 +25,27 @@ if (isset($_SESSION['userID'])) {
     echo ("<h4 class='margin'>Woops, her er noe galt!</h4>");
 }
 
-if (isset($_REQUEST['la']) && isset($_POST['day']) && $_POST['day'] != "Dag" && isset($_POST['time'])) {
-    $conn->setAvailableLAinDB($_REQUEST['day'] . $_REQUEST['time'], $user->userID);
+if (isset($_REQUEST['la'])) {
+    $inputError = false;
+    if (!isset($_POST['day'])) {
+        $_SESSION['temp_message'] = "Velg en dag.<br>";
+        $inputError = true;
+    } elseif ($_POST['day'] == "day") {
+        $_SESSION['temp_message'] = "Velg en dag.<br>";
+        $inputError = true;
+    }
+
+    if (!isset($_POST['time'])) {
+        $_SESSION['temp_message'] = "Velg en tid.<br>";
+        $inputError = true;
+    } elseif ($_POST['time'] < 8 || $_POST['time'] > 17) {
+        $_SESSION['temp_message'] = "Velg en tid mellom 8 og 17.<br>";
+        $inputError = true;
+    }
+
+    if (!$inputError){
+        $conn->setAvailableLAinDB($_POST['day'] . $_POST['time'], $user->userID);
+    }
 }
 
 // An array for converting the days to Norwegian
@@ -101,7 +120,7 @@ if ($user->role == "la") {
 
     <!-- A form for booking a tutor-guidance session -->
     <form method="post" action="" id="bookingForm" class="margin" style="margin-top:15px;">
-        <select name="day" form="bookingForm">
+        <select name="day" form="bookingForm" title="Vennligst velg en dag.">
             <option value="day" hidden selected>Dag</option>
             <option value="monday">Mandag</option>
             <option value="tuesday">Tirsdag</option>
@@ -109,7 +128,7 @@ if ($user->role == "la") {
             <option value="thursday">Torsdag</option>
             <option value="friday">Fredag</option>
         </select>
-        <input type="number" name="time" min="8" max="17" placeholder="Tid">
+        <input type="number" name="time" min="8" max="17" placeholder="Tid" required title="Vennligst fyll inn et tidspunkt mellom 8 og 17." oninvalid="this.setCustomValidity('Vennligst fyll inn et tidspunkt mellom 8 og 17.')" oninput="this.setCustomValidity('')">
         <input type="submit" name="la" value="Gjør tilgjengelig">
         <?php
         if (isset($_SESSION['temp_message'])) {

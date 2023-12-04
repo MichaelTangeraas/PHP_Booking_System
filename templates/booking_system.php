@@ -2,14 +2,65 @@
 <?php
 include("../classes/calender.php");
 include_once("../classes/database.php");
+require_once("../classes/inputValidator.php");
 
 // Initialize the database connection and the calender
 $calender = new Calender($pdo);
 $conn = new Database($pdo);
+$validator = new inputValidator();
+
+if (isset($_POST['booking'])) {
+    $inputError = false;
+    $_SESSION['temp_message'] = "Tittel for veiledning må fylles ut.<br>";
+
+    if (!isset($_POST['text']) || empty($_POST['text'])) {
+        $_SESSION['temp_message'] = "Tittel for veiledning må fylles ut.<br>";
+        $inputError = true;
+    } elseif (strlen($_POST['text']) <= 5 || strlen($_POST['text']) >= 50) {
+        $_SESSION['temp_message'] = "Tittel for veiledning må være 5 og 50 tegn langt.<br>";
+        $inputError = true;
+    }
+
+    if (!isset($_POST['day'])) {
+        $_SESSION['temp_message'] = "Velg en dag.<br>";
+        $inputError = true;
+    } elseif ($_POST['day'] == "day") {
+        $_SESSION['temp_message'] = "Velg en dag.<br>";
+        $inputError = true;
+    }
+
+    if (!isset($_POST['time'])) {
+        $_SESSION['temp_message'] = "Velg en tid.<br>";
+        $inputError = true;
+    } elseif ($_POST['time'] < 8 || $_POST['time'] > 17) {
+        $_SESSION['temp_message'] = "Velg en tid mellom 8 og 17.<br>";
+        $inputError = true;
+    }
+
+    if (strlen($_POST['textDesc']) >= 200) {
+        $_SESSION['temp_message'] = "Beskrivelse for veiledning kan ikke være mer enn 200 tegn langt.<br>";
+        $inputError = true;
+    }
+
+    if (!$inputError) {
+        $timeDate = $_POST['day'] . $_POST['time']; // Get the day and time from the form
+        $weekday = $conn->selectBookingFromDB($timeDate);
+        $userID = $_SESSION['userID'];
+        // If the time slot is not booked or is booked by the current user, update the booking
+        if ($weekday->userID == NULL || $weekday->userID == $userID) {
+            $_SESSION['temp_message'] = "Veiledningen er booket";
+            $conn->updateBookingToDB($validator->cleanString($_POST['text']), $validator->cleanString($_POST['textDesc']), $timeDate, $userID);
+        } else {
+            $_SESSION['temp_message'] = "Veiledningen er opptatt";
+        }
+    }
+}
+
 
 // Check if a booking request has been made. Refresh the page if it has.
 if (isset($_REQUEST['booking'])) {
-    header('Location: ../public_html/index.php');
+    //header('Location: ../public_html/index.php');
+    //echo $_SESSION['temp_message'];
 }
 
 // Check if the delete button has been pressed. If it has, reset the booking and refresh the page.
