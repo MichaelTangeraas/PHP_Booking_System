@@ -7,6 +7,8 @@
  */
 require_once('../includes/db.inc.php');
 include_once('database.php');
+require_once('inputvalidator.php');
+
 class Calender
 {
     public $pdo;
@@ -45,22 +47,53 @@ class Calender
     {
         // Create a new Database connection
         $conn = new Database($this->pdo);
+        $validator = new InputValidator();
 
         // Check if a booking request has been made, the requested time matches the current time slot, and a user is logged in
-        if (isset($_REQUEST['booking']) && $timeDate == $_REQUEST['day'] . $_REQUEST['time'] && isset($_SESSION['userID']) && !empty($_SESSION['userID'])) {
+        if (isset($_REQUEST['booking'])) {
             // Get the user's ID
             $userID = $_SESSION['userID'];
+            $inputError = false;
 
             // Get the current booking for this time slot
             $weekday = $conn->selectBookingFromDB($timeDate);
+            if (!isset($_POST['text']) || empty($_POST['text'])) {
+                $_SESSION['temp_message'] = "Tittel for veiledning må fylles ut.<br>";
+                $inputError = true;
+            } elseif (strlen($_POST['text']) <= 5 || strlen($_POST['text']) >= 50) {
+                $_SESSION['temp_message'] = "Tittel for veiledning må være 5 og 50 tegn langt.<br>";
+                $inputError = true;
+            }
 
-            // If the time slot is not booked or is booked by the current user, update the booking
-            if ($weekday->userID == NULL || $weekday->userID == $userID) {
-                $_SESSION['temp_message'] = "Veiledningen er booket";
-                // Set a flash message cookie
-                echo $conn->updateBookingToDB($_REQUEST['text'], $_POST['textDesc'], $timeDate, $userID);
-            } else {
-                $_SESSION['temp_message'] = "Veiledningen er opptatt";
+            if (!isset($_POST['day'])) {
+                $_SESSION['temp_message'] = "Velg en dag.<br>";
+                $inputError = true;
+            } elseif ($_POST['day'] == "day") {
+                $_SESSION['temp_message'] = "Velg en dag.<br>";
+                $inputError = true;
+            }
+
+            if (!isset($_POST['time'])) {
+                $_SESSION['temp_message'] = "Velg en tid.<br>";
+                $inputError = true;
+            } elseif (!$_POST['time'] >= 8 && !$_POST['time'] <= 17) {
+                $_SESSION['temp_message'] = "Velg en tid mellom 8 og 17.<br>";
+                $inputError = true;
+            }
+
+            if (isset($_POST['textDesc']) && strlen($_POST['textDesc']) >= 200) {
+                $_SESSION['temp_message'] = "Beskrivelse for veiledning kan ikke være mer enn 200 tegn langt.<br>";
+                $inputError = true;
+            }
+
+            if ($timeDate == $_REQUEST['day'] . $_REQUEST['time'] && !$inputError) {
+                // If the time slot is not booked or is booked by the current user, update the booking
+                if ($weekday->userID == NULL || $weekday->userID == $userID) {
+                    $_SESSION['temp_message'] = "Veiledningen er booket";
+                    echo $conn->updateBookingToDB($validator->cleanString($_REQUEST['text']), $validator->cleanString($_POST['textDesc']), $timeDate, $userID);
+                } else {
+                    $_SESSION['temp_message'] = "Veiledningen er opptatt";
+                }
             }
         } else {
             // If no booking request has been made, show the booking info for this time slot

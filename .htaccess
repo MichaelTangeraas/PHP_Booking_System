@@ -1,0 +1,11 @@
+# Use a custom error page for 403 (Forbidden) errors
+
+ErrorDocument 403 /is115_project/public_html/error/403.php
+
+# Use a custom error page for 404 (Not Found) errors
+
+ErrorDocument 404 /is115_project/public_html/error/404.php
+
+# Use a custom error page for 500 (Internal Server Error) errors
+
+ErrorDocument 500 /is115_project/public_html/error/500.php

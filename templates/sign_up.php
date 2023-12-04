@@ -14,7 +14,7 @@ if (isset($_POST['register'])) {
 
         // Get the first name from the form and clean the string
         if ($validator->nameValidator($_POST['fname']) == false) {
-            echo "Fornavn er ikke gyldig!<br>";
+            echo "Fornavn er ikke gyldig! Fornavn kan kun inneholde bokstaver, og ha en lengde på minimum 2 karakterer og maksimum 35.<br>";
             $inputError = true;
         } else {
             $fname = $validator->cleanName($_POST['fname']);
@@ -22,7 +22,7 @@ if (isset($_POST['register'])) {
 
         // Get the last name from the form and clean the string
         if ($validator->nameValidator($_POST['lname']) == false) {
-            echo "Etternavn er ikke gyldig!<br>";
+            echo "Etternavn er ikke gyldig! Etternavn kan kun inneholde bokstaver, og ha en lengde på minimum 2 karakterer og maksimum 35.<br>";
             $inputError = true;
         } else {
             $lname = $validator->cleanName($_POST['lname']);
@@ -47,12 +47,13 @@ if (isset($_POST['register'])) {
 
         if (isset($fname) && isset($lname) && isset($email) && isset($password) && !$inputError) {
             $insert = new Database($pdo);
-            $insert->insertToDB($fname, $lname, $email, $password);
-
-            // Set a flash message cookie
-            setcookie('temp_message', 'Brukeren ble opprettet!', time() + 3600, "/");
-            //Redirect the user to login.php
-            header('location:login.php');
+            $result = $insert->insertToDB($fname, $lname, $email, $password);
+            if ($result) {
+                setcookie('temp_message', 'Bruker ble opprettet!', time() + 3600, "/");
+                header('location:login.php');
+            } else {
+                echo "En bruker med mailen " . $email . " finnes allerede <br>";
+            }
         }
     } else {
         // Print a message if the fields are empty and redirect the user to the registration page
@@ -68,13 +69,13 @@ if (isset($_POST['register'])) {
     <p>Opprett din bruker her</p>
     <form action="sign_up.php" method="post">
         <label for="fname">Fornavn:</label><br>
-        <input type="fname" id="fname" name="fname" required oninvalid="this.setCustomValidity('Vennligst fyll inn et fornavn.')" oninput="this.setCustomValidity('')"><br>
+        <input type="fname" id="fname" name="fname" required title="Vennligst fyll inn et fornavn." oninvalid="this.setCustomValidity('Vennligst fyll inn et fornavn.')" oninput="this.setCustomValidity('')"><br>
         <label for="lname">Etternavn:</label><br>
-        <input type="lname" id="lname" name="lname" required oninvalid="this.setCustomValidity('Vennligst fyll inn et etternavn')" oninput="this.setCustomValidity('')"><br>
+        <input type="lname" id="lname" name="lname" required title="Vennligst fyll inn et etternavn." oninvalid="this.setCustomValidity('Vennligst fyll inn et etternavn')" oninput="this.setCustomValidity('')"><br>
         <label for="email">Email:</label><br>
-        <input type="email" id="email" name="email" required oninvalid="this.setCustomValidity('Vennligst fyll inn en email.')" oninput="this.setCustomValidity('')"><br>
+        <input type="email" id="email" name="email" required title="Vennligst fyll inn en email." oninvalid="this.setCustomValidity('Vennligst fyll inn en email.')" oninput="this.setCustomValidity('')"><br>
         <label for="password">Passord:</label><br>
-        <input type="password" id="password" name="password" required oninvalid="this.setCustomValidity('Vennligst fyll inn et passord.')" oninput="this.setCustomValidity('')"><br>
+        <input type="password" id="password" name="password" required title="Vennligst fyll inn et passord." oninvalid="this.setCustomValidity('Vennligst fyll inn et passord.')" oninput="this.setCustomValidity('')"><br>
         <input type="submit" value="Registrer" name="register">
     </form>
     <p>Har du allerede en bruker? <a href="login.php">Logg inn</a></p>

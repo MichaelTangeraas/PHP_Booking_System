@@ -21,7 +21,7 @@ if (isset($_POST['update'])) {
 
         // Get the first name from the form and clean the string
         if ($validator->nameValidator($_POST['fname']) == false) {
-            echo "Fornavn er ikke gyldig!<br>";
+            echo "Fornavn er ikke gyldig! Fornavn kan kun inneholde bokstaver, og ha en lengde på minimum 2 karakterer og maksimum 35.<br>";
             $inputError = true;
         } else {
             $fname = $validator->cleanName($_POST['fname']);
@@ -29,7 +29,7 @@ if (isset($_POST['update'])) {
 
         // Get the last name from the form and clean the string
         if ($validator->nameValidator($_POST['lname']) == false) {
-            echo "Etternavn er ikke gyldig!<br>";
+            echo "Etternavn er ikke gyldig! Etternavn kan kun inneholde bokstaver, og ha en lengde på minimum 2 karakterer og maksimum 35.<br>";
             $inputError = true;
         } else {
             $lname = $validator->cleanName($_POST['lname']);
@@ -45,15 +45,19 @@ if (isset($_POST['update'])) {
 
         if (isset($fname) && isset($lname) && isset($email) && !$inputError) {
             // using the database.php class to update the user information in the database
-            $userDB->updateUserInDB($fname, $lname, $email, $_SESSION['userID']);
-            // Redirect the user to index.php
-            header('location:profile.php');
-            $_SESSION['message'] = "Din bruker ble oppdatert";
-        }
+            $result = $userDB->updateUserInDB($fname, $lname, $email, $_SESSION['userID']);
 
+            if ($result) {
+                // Redirect the user to index.php
+                $_SESSION['message'] = "Din bruker ble oppdatert";
+                header('location:profile.php');
+            } else {
+                echo "En bruker med mailen " . $email . " finnes allerede <br>";
+            }
+        }
     } else {
         // Print a message if the fields are empty and redirect the user to the registration page
-        echo "Please fill up the required field!";
+        echo "Vennligst fyll inn alle feltene!<br>";
         header('location:edit_profile.php');
     }
 }
@@ -65,12 +69,12 @@ if (isset($_POST['update'])) {
     <p>Legg til dine ønskede endringer</p>
     <form action="" method="post">
         <label for="fname">Fornavn:</label><br>
-        <input type="fname" id="fname" name="fname" value="<?= $user->fname ?>" required oninvalid="this.setCustomValidity('Vennligst fyll inn et fornavn.')" oninput="this.setCustomValidity('')"><br>
+        <input type="fname" id="fname" name="fname" value="<?= $user->fname ?>" required title="Vennligst oppdater ditt fornavn." oninvalid="this.setCustomValidity('Vennligst fyll inn et fornavn.')" oninput="this.setCustomValidity('')"><br>
         <label for="lname">Etternavn:</label><br>
-        <input type="lname" id="lname" name="lname" value="<?= $user->lname ?>" required oninvalid="this.setCustomValidity('Vennligst fyll inn et etternavn')" oninput="this.setCustomValidity('')"><br>
+        <input type="lname" id="lname" name="lname" value="<?= $user->lname ?>" required title="Vennligst oppdater ditt etternavn." oninvalid="this.setCustomValidity('Vennligst fyll inn et etternavn')" oninput="this.setCustomValidity('')"><br>
         <label for="email">Email:</label><br>
-        <input type="email" id="email" name="email" value="<?= $user->email ?>" required oninvalid="this.setCustomValidity('Vennligst fyll inn en email.')" oninput="this.setCustomValidity('')"><br>
+        <input type="email" id="email" name="email" value="<?= $user->email ?>" required title="Vennligst oppdater din email." oninvalid="this.setCustomValidity('Vennligst fyll inn en email.')" oninput="this.setCustomValidity('')"><br>
         <input type="submit" value="Lagre endringer" name="update">
-        <input type="button" value="Gå tilbake" onclick="history.back()">
+        <input type="button" value="Gå tilbake" onclick="window.location.href='../public_html/profile.php'">
     </form>
 </div>

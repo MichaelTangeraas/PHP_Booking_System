@@ -94,7 +94,7 @@ if ($user->role == "la") {
 
     <h1 class="margin">Booking system</h1>
     <p class="margin">
-        Fyll inn feltene under for å gjøre deg selv selv som tilgjengelig hjelpelærere ved bestemt tidspunkt.
+        Fyll inn feltene under for å gjøre deg selv som tilgjengelig hjelpelærer ved bestemt tidspunkt.
         <br />
         Du kan overskrive andre hjelpelærere sine tilgjengelige tidspunkt.
     </p>

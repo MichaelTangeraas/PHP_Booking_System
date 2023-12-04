@@ -93,13 +93,15 @@ if (empty($userBookings) && empty($laBookings)) {
     <p class="margin">
         Fyll inn feltet under for å booke en ønsket veiledningstime.
         <br />
+        <b>Tittel, dag og tidspunkt er påkrevd.</b> Beskrivelse er valgfritt.
+        <br />
         For å endre eksisterende booking, overskriv den med ny informasjon.
     </p>
 
     <!-- A form for booking a tutor-guidance session -->
     <form method="post" action="" id="bookingForm" class="margin" style="margin-top:15px;">
-        <input type="text" name="text" placeholder="Tittel for veiledning">
-        <select name="day" form="bookingForm">
+        <input type="text" name="text" placeholder="Tittel for veiledning" required minlength="5" maxlength="50" title="Vennligst fyll inn en tittel mellom 5 og 50 tegn." oninvalid="this.setCustomValidity('Vennligst fyll inn en tittel mellom 5 og 50 tegn.')" oninput="this.setCustomValidity('')">
+        <select name="day" form="bookingForm" title="Vennligst velg en dag.">
             <option value="day" hidden selected>Dag</option>
             <option value="monday">Mandag</option>
             <option value="tuesday">Tirsdag</option>
@@ -107,10 +109,10 @@ if (empty($userBookings) && empty($laBookings)) {
             <option value="thursday">Torsdag</option>
             <option value="friday">Fredag</option>
         </select>
-        <input type="number" name="time" min="8" max="17" placeholder="Tid">
+        <input type="number" name="time" min="8" max="17" placeholder="Tid" required title="Vennligst fyll inn et tidspunkt mellom 8 og 17." oninvalid="this.setCustomValidity('Vennligst fyll inn et tidspunkt mellom 8 og 17.')" oninput="this.setCustomValidity('')">
         <input type="submit" name="booking" value="Book veiledning">
         <br>
-        <textarea name="textDesc" rows="4" cols="39" placeholder="Beskrivelse for veiledning"></textarea>
+        <textarea name="textDesc" rows="4" cols="39" placeholder="Beskrivelse for veiledning" maxlength="200" title="Vennligst fyll inn en beskrivelse innen 200 tegn."></textarea>
         <?php
         if (isset($_SESSION['temp_message'])) {
             echo "<b>" . $_SESSION['temp_message'] . "</b>";

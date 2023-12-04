@@ -89,7 +89,7 @@ if (isset($_POST['changeWeek'])) {
     } else {
         $ukemelding = "Noe gikk galt! Prøv på nytt.";
     }
-}else{
+} else {
     $ukemelding = "Velg et ukenummer mellom 1 og 52";
 }
 if (isset($_REQUEST['reset'])) {
@@ -98,7 +98,7 @@ if (isset($_REQUEST['reset'])) {
 ?>
 
 <form method="post" action="">
-    <input type="text" name="email" placeholder="Email" required>
+    <input type="text" name="email" placeholder="Email" required title="Vennligst fyll inn en gyldig e-postadresse." oninvalid="this.setCustomValidity('Vennligst fyll inn en email.')" oninput="this.setCustomValidity('')">
     <select name="role">
         <option value="choose" hidden selected>Velg brukertype</option>
         <option value="student">Student</option>
@@ -109,7 +109,8 @@ if (isset($_REQUEST['reset'])) {
 
 <form method="post" action="">
     <label for="weekNumber"><br><?= $ukemelding ?><br></label>
-    <input type="number" name="weekNumber" placeholder="Uke" min="1" max="52"  value="<?php $week = $userDB->selectBookingFromDB('monday8'); echo $week->week?>" required>
+    <input type="number" name="weekNumber" placeholder="Uke" min="1" max="52" value="<?php $week = $userDB->selectBookingFromDB('monday8');
+                                                                                        echo $week->week ?>" required>
     <input type="submit" name="changeWeek" value="Bytt til ny uke">
 </form>
 <form method="post" action="">

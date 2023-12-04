@@ -263,7 +263,7 @@ class Database
      * @param string $email The email address of the user.
      * @param string $password The password of the user.
      *
-     * @return void
+     * @return bool $inserted Returns true if the insertion was successful, false otherwise.
      */
     function insertToDB($fname, $lname, $email, $password)
     {
@@ -283,10 +283,14 @@ class Database
 
             // Execute the statement
             $query->execute();
+            // Set the return value to true
+            $inserted = true;
         } catch (PDOException $e) {
-            // Print the error message if the insertion fails. In almost all cases this will be due to a duplicate email address.
-            echo "En bruker med mailen " . $email . " finnes allerede";
+            // Set the return value to false
+            $inserted = false;
         }
+        // Return the result
+        return $inserted;
         //$this->pdo = null;
     }
 
@@ -423,7 +427,7 @@ class Database
      * @param string $email The new email address of the user.
      * @param string $userID The ID of the user to be updated.
      *
-     * @return void
+     * @return bool $updated Returns true if the update was successful, false otherwise.
      */
     function updateUserInDB($fname, $lname, $email, $userID)
     {
@@ -440,13 +444,11 @@ class Database
         try {
             // Execute the statement
             $query->execute();
+            $updated = true;
         } catch (PDOException $e) {
-            // Print an error message if the update fails
-            echo "En bruker med emailen " . $email . " finnes allerede";
-            exit();
+            $updated = false;
         }
-        // Print a success message
-        echo "Brukeren med email " . $email . " har blitt oppdatert";
+        return $updated;
     }
 
     /**
