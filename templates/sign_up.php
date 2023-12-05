@@ -1,7 +1,7 @@
+<!-- Sign up content page -->
 <?php
 // Include the database connection file
-require_once('../includes/db.inc.php');
-include_once('../classes/database.php');
+require_once('../classes/database.php');
 require_once('../classes/inputvalidator.php');
 
 // Check if the 'register' button has been clicked
@@ -45,13 +45,16 @@ if (isset($_POST['register'])) {
             $password = password_hash($validator->cleanString($_POST['password']), PASSWORD_DEFAULT);
         }
 
+        // If there are no input errors, insert the user into the database
         if (isset($fname) && isset($lname) && isset($email) && isset($password) && !$inputError) {
             $insert = new Database($pdo);
-            $result = $insert->insertToDB($fname, $lname, $email, $password);
+            $result = $insert->insertUserToDB($fname, $lname, $email, $password);
+            // If the user is inserted into the database, redirect the user to the login page
             if ($result) {
                 setcookie('temp_message', 'Bruker ble opprettet!', time() + 3600, "/");
                 header('location:login.php');
             } else {
+                // Print a message if the email already exists in the database
                 echo "En bruker med mailen " . $email . " finnes allerede <br>";
             }
         }

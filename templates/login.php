@@ -1,6 +1,6 @@
+<!-- Login Page -->
 <?php
-include("../classes/database.php");
-require_once('../includes/db.inc.php');
+require_once("../classes/database.php");
 
 ?>
 <div class="center">
@@ -45,9 +45,6 @@ require_once('../includes/db.inc.php');
                 // Verify the password
                 if (password_verify($password, $user->password)) {
 
-                    // Correct password
-                    echo "Riktig passord";
-
                     // Start a new session
                     session_start();
 
@@ -63,26 +60,14 @@ require_once('../includes/db.inc.php');
                 }
             } else {
 
-                // Incorrect username or password
+                // Incorrect email or password
                 echo "Feil email eller passord";
-
-                // Redirect to login.php
-                // header('location: login.php');
             }
         } else {
 
             // Required field is empty
             echo "Vennligst fyll ut alle skjemafelt!<br>";
-
-            // Redirect to login.php
-            // header('location: login.php');
         }
-    }
-
-    if (isset($_POST['reset'])) {
-        $reload = new Database($pdo);
-        $reload->reloadTables("booking_users");
-        echo "Kjører";
     }
 
     ?>

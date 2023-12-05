@@ -1,5 +1,5 @@
 <?php
-include_once('database.php');
+require_once('database.php');
 require_once('inputvalidator.php');
 
 /**
@@ -9,10 +9,18 @@ require_once('inputvalidator.php');
  */
 class Calender
 {
-    // Property to hold the PDO instance
-    public $pdo;
+    /**
+     * @var PDO $pdo An instance of the PDO object.
+     */
+    private $pdo;
 
-    // Constructor function
+    /**
+     * Constructor method
+     * 
+     * Initializes the PDO object.
+     * 
+     * @param PDO $pdo The PDO object.
+     */
     public function __construct($pdo)
     {
         // Assign the passed PDO instance to the $pdo property
@@ -26,53 +34,53 @@ class Calender
      * @param int $length The maximum length of the truncated string.
      * @return string The truncated string.
      */
-    public function shortString($string, $length)
+    private function shortString($string, $length)
     {
         // Check if the length of the string is greater than the specified length
-        if (strlen($string) > $length) {
+        if (mb_strlen($string, 'UTF-8') > $length) {
             // If it is, truncate the string to the specified length and append "..."
-            $string = substr($string, 0, $length) . "...";
+            $string = mb_substr($string, 0, $length, 'UTF-8') . "...";
         }
         // Return the truncated string
         return $string;
     }
 
     /**
-     * Outputs the value of a booking based on the input fields if the submit button is pressed.
-     * If no booking is set or the button has not been clicked, it outputs "Ledig".
+     * Outputs the booking info for a given time slot based on value in the database.
+     * Also outputs the name of the teaching assistant or student who booked the time slot.
+     * The name of the teaching assistant will shown instead of the students name if a teaching assistant has "booked" the time slot.
      * 
      * @param string $timeDate The time and date of the booking.
      * @return void
      */
-    public function newValue($timeDate)
+    public function getBooking($timeDate)
     {
         // Create a new Database connection
         $conn = new Database($this->pdo);
-        $validator = new InputValidator();
-        // Get the current booking for this time slot
-
-        // If no booking request has been made, show the booking info for this time slot
+        // Select the booking for the given timeDate
         $weekday = $conn->selectBookingFromDB($timeDate);
+        // Echo the title of the booking, truncated to 15 characters
         echo $this->shortString($weekday->bookingInfo, 15);
 
-        // If the time slot is booked, show the user who booked it
+        // If there is a teaching assistant booked for the time slot, echo the teaching assistant's name
         if ($weekday->la != NULL) {
             $la = $conn->selectUserFromDBUserId($weekday->la);
             echo "<br /> LA: " . str_replace(".", "", ($this->shortString($la->fname, 1))) . "." . str_replace(".", "", ($this->shortString($la->lname, 1))) . ". <br>";
         } elseif ($weekday->userID != NULL) {
-
+            // If there is a student booked for the time slot, echo the student's name
             $student = $conn->selectUserFromDBUserId($weekday->userID);
             echo "<br /> Student: " . str_replace(".", "", ($this->shortString($student->fname, 1))) . "." . str_replace(".", "", ($this->shortString($student->lname, 1))) . ". <br>";
         } else {
             echo "<br /> ";
         }
-        
     }
 
     /**
-     * Creates the time section of the calendar.
-     * The time starts at 8:00 and ends at 17:00.
-     * 
+     * This method generates the time section of the calendar.
+     * It starts at 8:00 and ends at 17:00.
+     * The time is displayed in a grid layout.
+     * Each hour is displayed in a separate grid item.
+     *
      * @return void
      */
     public function createTime()
@@ -93,10 +101,11 @@ class Calender
     /**
      * Creates a day section of the calendar.
      * Each day section is given an ID based on the combination of the name of the day,
-     * and the time of the day. 
-     * Uses the newValue function to check if the current value should change to the values submitted in the form.
+     * and the time of the day.
+     * Uses the getBooking function to check if the current value should change to the values submitted in the form.
+     * The day section starts at 8:00 and ends at 17:00, with each hour represented as a separate grid item.
      * 
-     * @param string $day The day to create the section for.
+     * @param string $day The day to create the section for. This should be a string representing the day of the week.
      * @return void
      */
     public function createDay($day)
@@ -110,7 +119,7 @@ class Calender
             $i++;
             $timeDate = $day . $time++;
             echo '<div class="grid-item">';
-            $this->newValue($timeDate);
+            $this->getBooking($timeDate);
             echo '</div>';
         }
         echo '</div></div>';
@@ -119,21 +128,23 @@ class Calender
     /**
      * Creates and outputs the dates for a given week.
      *
-     * This function sets the timezone to CET, then outputs the week number. It then creates an array of weekdays,
-     * sets the date to the first day of the given week, and creates a one day interval. It then loops over the weekdays,
+     * This function fetches the week number from the database using the 'monday8' key.
+     * It sets the timezone to CET, then outputs the week number. It then creates an array of weekdays,
+     * sets the date to the first day of the fetched week, and creates a one day interval. It then loops over the weekdays,
      * outputting each day's name and date, and increments the date by the interval.
+     * 
+     * Essentially, this function creates the header of the calendar.
      *
-     * @param int $week The week number to create dates for.
      * @return void
      */
     public function createDates()
     {
         $conn = new Database($this->pdo);
-        $week = $conn->selectBookingFromDB('monday8');
-        $week = $week->week;
+        $bookingObject = $conn->selectBookingFromDB('monday8');
+        $week = $bookingObject->week;
         date_default_timezone_set('CET');
         echo '<div class="large-grid-item">Uke ' . $week . '</div>';
-        $days = array("Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag");
+        $days = ["Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag"];
 
         // Start date
         $date = new DateTime();

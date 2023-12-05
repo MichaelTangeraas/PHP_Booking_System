@@ -17,22 +17,23 @@
             <a href="index.php">PHP Booking System</a>
         </div>
         <ul class="navbar">
-            <?php if (isset($_SESSION['userID']) && !empty($_SESSION['userID'])) {
+            <?php
+            // If the user is logged in, show the home button
+            if (isset($_SESSION['userID']) && !empty($_SESSION['userID'])) {
                 echo ("<li><a href='index.php'>Hjem</a></li>");
             }
-
+            // If the user is logged in, show the profile button, or else show the sign up button
             if (isset($_SESSION['userID']) && !empty($_SESSION['userID'])) {
                 echo ("<li><a href='profile.php'>Din profil</a></li>");
             } else {
                 echo ("<li><a href='sign_up.php'>Registrering</a></li>");
             }
-
+            // If the user is logged in, show the log out button, or else show the log in button
             if (isset($_SESSION['userID']) && !empty($_SESSION['userID'])) {
                 echo ("<li><a href='../public_html/logout.php'>Logg ut</a></li>");
             } else {
                 echo ("<li><a href='login.php'>Logg inn</a></li>");
             }
-
             ?>
         </ul>
     </div>
