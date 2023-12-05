@@ -8,7 +8,7 @@ if (isset($_SESSION['userID']) && !empty($_SESSION['userID'])) {
     header('location: index.php');
 } else {
     // User is not logged in and needs access to sign up page
-    include("../includes/header.inc.php");
-    include("../templates/sign_up.php");
-    include("../includes/footer.inc.php");
+    require("../includes/header.inc.php");
+    require("../templates/sign_up.php");
+    require("../includes/footer.inc.php");
 }

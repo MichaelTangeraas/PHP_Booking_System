@@ -1,10 +1,8 @@
-<!-- HTML form for user registration -->
+<!-- HTML form for user information updates -->
 
 <?php
-
-include_once('../includes/db.inc.php');
-include_once('../classes/database.php');
-include_once('../classes/inputvalidator.php');
+require_once('../classes/database.php');
+require_once('../classes/inputvalidator.php');
 
 // using the database.php class to get the user information from the database
 $userDB = new Database($pdo);
@@ -14,7 +12,7 @@ $user = $userDB->selectUserFromDBUserId($_SESSION['userID']);
 // Check if the 'update' button has been clicked
 if (isset($_POST['update'])) {
 
-    // Check if the email and password fields are not empty
+    // Check if the fields are not empty
     if ($_POST['fname'] != "" || $_POST['lname'] != "" || $_POST['email'] != "") {
         $validator = new InputValidator();
         $inputError = false;
@@ -42,16 +40,17 @@ if (isset($_POST['update'])) {
         } else {
             $email = $validator->cleanString($_POST['email']);
         }
-
+        // If there are no input errors, update the user information
         if (isset($fname) && isset($lname) && isset($email) && !$inputError) {
             // using the database.php class to update the user information in the database
             $result = $userDB->updateUserInDB($fname, $lname, $email, $_SESSION['userID']);
-
+            // Check if the user was updated
             if ($result) {
                 // Redirect the user to index.php
                 $_SESSION['message'] = "Din bruker ble oppdatert";
                 header('location:profile.php');
             } else {
+                // Print a message if the email already exists in the database
                 echo "En bruker med mailen " . $email . " finnes allerede <br>";
             }
         }
@@ -64,7 +63,7 @@ if (isset($_POST['update'])) {
 
 ?>
 
-<div>
+<div class="margin">
     <h1>Oppdatere Profil</h1>
     <p>Legg til dine ønskede endringer</p>
     <form action="" method="post">

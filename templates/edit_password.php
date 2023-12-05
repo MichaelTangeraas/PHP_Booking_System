@@ -1,9 +1,8 @@
 <!-- HTML form for password updating -->
 
 <?php
-include_once('../includes/db.inc.php');
-include_once('../classes/database.php');
-include_once('../classes/inputvalidator.php');
+require_once('../classes/database.php');
+require_once('../classes/inputvalidator.php');
 
 // using the database.php class to get the user information from the database
 $userDB = new Database($pdo);
@@ -15,9 +14,9 @@ if (isset($_POST['update'])) {
 
     // Check if the password fields are not empty
     if ($_POST['oldpassword'] != "" || $_POST['newpassword'] != "" || $_POST['repetepassword'] != "") {
-
+        // Check if the new password and the repeated password are the same
         if ($_POST['newpassword'] == $_POST['repetepassword']) {
-
+            // Check if the old password is correct
             if (password_verify($_POST['oldpassword'], $user->password)) {
                 $validator = new InputValidator();
 
@@ -48,7 +47,7 @@ if (isset($_POST['update'])) {
 }
 
 ?>
-<div>
+<div class="margin">
     <h1>Oppdatere Passord</h1>
     <p>Følg stegende under for å opppdatere ditt passord</p>
     <form action="" method="post">

@@ -1,30 +1,19 @@
-<!-- Booking System -->
+<!-- LA Booking System -->
 <?php
-include("../classes/calender.php");
-include_once("../classes/database.php");
+require_once("../classes/calender.php");
+require_once("../classes/database.php");
 $calender = new Calender($pdo);
 $conn = new Database($pdo);
-
-// Check if a booking request has been made. Refresh the page if it has.
-if (isset($_REQUEST['booking'])) {
-    header('Location: ../public_html/index.php');
-}
-
-// Check if the delete button has been pressed. If it has, reset the booking and refresh the page.
-if (isset($_POST['delete'])) {
-    $timeDate = $_POST['timeDate']; // Get the timeDate value from the form
-    $conn->resetBookingToDB($timeDate);
-    header('Location: ../public_html/index.php');
-}
 
 // Display the welcome message and user information
 if (isset($_SESSION['userID'])) {
     $user = $conn->selectUserFromDBUserId($_SESSION['userID']);
-    echo ("<h4 class='margin'>Velkommen: " . ucfirst($user->role) . " - " . $user->fname . " " . $user->lname . "</h4>");
+    echo ("<h4 class='margin'>Velkommen: " . strtoupper($user->role) . " - " . $user->fname . " " . $user->lname . "</h4>");
 } else {
     echo ("<h4 class='margin'>Woops, her er noe galt!</h4>");
 }
 
+// Check if the 'la' subit button has been clicked
 if (isset($_REQUEST['la'])) {
     $inputError = false;
     if (!isset($_POST['day'])) {
@@ -43,7 +32,7 @@ if (isset($_REQUEST['la'])) {
         $inputError = true;
     }
 
-    if (!$inputError){
+    if (!$inputError) {
         $conn->setAvailableLAinDB($_POST['day'] . $_POST['time'], $user->userID);
     }
 }
@@ -83,11 +72,14 @@ if ($user->role == "la") {
         if ($booking->la == $_SESSION['userID']) {
             echo "<tr>";
             echo "<td style='border: 1px solid black; padding: 8px;'>" . $booking->bookingInfo . "</td>";
+
+            // Format the time and date to match the Norwegian format before displaying in table
             $timeDate = $booking->timeDate;
             $dayOfWeek = preg_replace('/[0-9]+/', '', $timeDate); // Remove all numbers
             $dayOfWeekNorwegian = $daysInNorwegian[$dayOfWeek]; // Convert the day to Norwegian
             $time = preg_replace('/\D/', '', $timeDate); // Remove all non-numbers
 
+            // Store the formatted time and date in a variable
             $formattedTimeDate = $dayOfWeekNorwegian . " kl. " . $time;
 
             echo "<td style='border: 1px solid black; padding: 8px;'>" . $formattedTimeDate . "</td>";
@@ -105,12 +97,31 @@ if ($user->role == "la") {
         }
     }
 }
-    ?>
-    </table>
 
+echo '</table>';
+
+// MESSAGE TO EVALUATORS: The following code stops users from modifying other users' bookings, 
+// but does allow the user to remove a seperate booking of their own. 
+
+// Check if the delete button has been pressed. If it has, reset the booking and refresh the page.
+if (isset($_POST['delete'])) {
+    $timeDate = $_POST['timeDate']; // Get the timeDate value from the form
+
+    // Validate $timeDate here. If invalid, reject the request.
+    // For example, check if the booking with this timeDate exists and belongs to the current user.
+    $booking = $conn->selectBookingFromDB($timeDate);
+    if ($booking == NULL || $booking->la != $_SESSION['userID']) {
+        // Invalid booking, reject the request
+        echo '<p class="margin"><b>Oi, her skjedde det en feil!</b></p>';
+    } else {
+        // If valid, proceed with the rest of the operation.
+        $conn->resetLaBookingInDB($timeDate);
+        header('Location: ../public_html/index.php');
+    }
+}
+    ?>
 
     <!-- Booking form -->
-
     <h1 class="margin">Booking system</h1>
     <p class="margin">
         Fyll inn feltene under for å gjøre deg selv som tilgjengelig hjelpelærer ved bestemt tidspunkt.
@@ -150,12 +161,5 @@ if ($user->role == "la") {
         $calender->createDay("wednesday");
         $calender->createDay("thursday");
         $calender->createDay("friday");
-
-        if (isset($_REQUEST['reset'])) {
-            $conn->reloadTables("weekdays");
-        }
         ?>
-        <form method="post" action="">
-            <input type="submit" name="reset" value="Tilbakestill">
-        </form>
     </div>
