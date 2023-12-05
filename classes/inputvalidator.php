@@ -38,7 +38,7 @@ class InputValidator
     {
         // Check if the input is a valid name
         // A valid name can only contain letters, dashes, and spaces
-        if (preg_match('/^[\p{L}\s-]+$/u', $name)) {
+        if (preg_match('/^[\p{L}\s-]+$/u', $name) && strlen($name) >= 2 && strlen($name) <= 35) {
             return true;
         } else {
             return false;

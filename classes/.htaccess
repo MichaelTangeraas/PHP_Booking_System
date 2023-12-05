@@ -1,0 +1,7 @@
+# Set the order in which Allow and Deny directives are evaluated
+
+Order deny,allow
+
+# Deny access to this directory from all hosts
+
+Deny from all

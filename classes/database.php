@@ -32,8 +32,10 @@ class Database
      * to the values of $bookingInfo and $userID respectively, where 'timeDate' equals $timeDate and the 'userID' is either NULL or equals $userID.
      * 
      * @param string $bookingInfo The new booking information.
+     * @param string $bookingDescription The new booking description.
      * @param string $timeDate The time and date of the booking.
      * @param int $userID The ID of the user making the booking.
+     * 
      * 
      * @return void
      */
@@ -56,7 +58,6 @@ class Database
         } catch (PDOException $e) {
             echo "Error querying database: " . $e->getMessage() . "<br>";
         }
-        //$this->pdo = null;
     }
 
     public function resetBookingToDB($timeDate)
@@ -72,7 +73,6 @@ class Database
         } catch (PDOException $e) {
             echo "Error querying database: " . $e->getMessage() . "<br>"; // HUSK Å FJERN DETTE!!!!!!!
         }
-        //$this->pdo = null;
     }
 
     /**
@@ -140,7 +140,6 @@ class Database
                 echo "Oi, her gikk det galt!";
             }
         }
-        //$this->pdo = null;
     }
 
     /**
@@ -221,7 +220,7 @@ class Database
         }
 
         $weekdays = $query->fetchAll(PDO::FETCH_OBJ);
-        //$this->pdo = null;
+
         return $weekdays;
     }
 
@@ -249,7 +248,7 @@ class Database
         }
 
         $weekdays = $query->fetchAll(PDO::FETCH_OBJ);
-        //$this->pdo = null;
+
         return $weekdays;
     }
 
@@ -263,7 +262,7 @@ class Database
      * @param string $email The email address of the user.
      * @param string $password The password of the user.
      *
-     * @return void
+     * @return bool Returns true if the insertion was successful, false otherwise.
      */
     function insertToDB($fname, $lname, $email, $password)
     {
@@ -283,11 +282,14 @@ class Database
 
             // Execute the statement
             $query->execute();
+            // Set the return value to true
+            $inserted = true;
         } catch (PDOException $e) {
-            // Print the error message if the insertion fails. In almost all cases this will be due to a duplicate email address.
-            echo "En bruker med mailen " . $email . " finnes allerede";
+            // Set the return value to false
+            $inserted = false;
         }
-        //$this->pdo = null;
+        // Return the result
+        return $inserted;
     }
 
     /**
@@ -313,7 +315,6 @@ class Database
 
         // Execute the statement
         $query->execute();
-        //$this->pdo = null;
     }
 
     /**
@@ -423,7 +424,7 @@ class Database
      * @param string $email The new email address of the user.
      * @param string $userID The ID of the user to be updated.
      *
-     * @return void
+     * @return bool Returns true if the update was successful, false otherwise.
      */
     function updateUserInDB($fname, $lname, $email, $userID)
     {
@@ -440,13 +441,11 @@ class Database
         try {
             // Execute the statement
             $query->execute();
+            $updated = true;
         } catch (PDOException $e) {
-            // Print an error message if the update fails
-            echo "En bruker med emailen " . $email . " finnes allerede";
-            exit();
+            $updated = false;
         }
-        // Print a success message
-        echo "Brukeren med email " . $email . " har blitt oppdatert";
+        return $updated;
     }
 
     /**
@@ -500,7 +499,6 @@ class Database
 
         // Execute the statement
         $query->execute();
-        //$this->pdo = null;
     }
 
     /**
@@ -522,7 +520,6 @@ class Database
 
         // Execute the statement
         $query->execute();
-        //$this->pdo = null;
     }
 
     /**

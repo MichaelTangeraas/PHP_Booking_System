@@ -15,9 +15,9 @@ require_once('../includes/db.inc.php');
     <p>Logg inn på kontoen din</p>
     <form action="login.php" method="post">
         <label for="email">Email:</label><br>
-        <input type="email" id="email" name="email" required><br>
+        <input type="email" id="email" name="email" required title="Vennligst fyll inn en gyldig e-postadresse." oninvalid="this.setCustomValidity('Vennligst fyll inn en email.')" oninput="this.setCustomValidity('')"><br>
         <label for="password">Passord:</label><br>
-        <input type="password" id="password" name="password" required><br>
+        <input type="password" id="password" name="password" required title="Vennligst fyll inn et passord." oninvalid="this.setCustomValidity('Vennligst fyll inn et passord.')" oninput="this.setCustomValidity('')"><br>
         <input type="submit" value="Logg inn" name="login">
     </form>
     <p>Har du ikke en konto? <a href="sign_up.php">Opprett en bruker</a></p>

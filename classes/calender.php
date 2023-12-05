@@ -1,20 +1,23 @@
 <?php
+include_once('database.php');
+require_once('inputvalidator.php');
 
 /**
  * Class Calender
  * 
  * A class that contains functions for creating a calendar and booking tutor-guidance sessions.
  */
-require_once('../includes/db.inc.php');
-include_once('database.php');
 class Calender
 {
+    // Property to hold the PDO instance
     public $pdo;
+
+    // Constructor function
     public function __construct($pdo)
     {
+        // Assign the passed PDO instance to the $pdo property
         $this->pdo = $pdo;
     }
-
 
     /**
      * Truncate a string to a specified length and append "..." if it's longer.
@@ -45,40 +48,25 @@ class Calender
     {
         // Create a new Database connection
         $conn = new Database($this->pdo);
+        $validator = new InputValidator();
+        // Get the current booking for this time slot
 
-        // Check if a booking request has been made, the requested time matches the current time slot, and a user is logged in
-        if (isset($_REQUEST['booking']) && $timeDate == $_REQUEST['day'] . $_REQUEST['time'] && isset($_SESSION['userID']) && !empty($_SESSION['userID'])) {
-            // Get the user's ID
-            $userID = $_SESSION['userID'];
+        // If no booking request has been made, show the booking info for this time slot
+        $weekday = $conn->selectBookingFromDB($timeDate);
+        echo $this->shortString($weekday->bookingInfo, 15);
 
-            // Get the current booking for this time slot
-            $weekday = $conn->selectBookingFromDB($timeDate);
+        // If the time slot is booked, show the user who booked it
+        if ($weekday->la != NULL) {
+            $la = $conn->selectUserFromDBUserId($weekday->la);
+            echo "<br /> LA: " . str_replace(".", "", ($this->shortString($la->fname, 1))) . "." . str_replace(".", "", ($this->shortString($la->lname, 1))) . ". <br>";
+        } elseif ($weekday->userID != NULL) {
 
-            // If the time slot is not booked or is booked by the current user, update the booking
-            if ($weekday->userID == NULL || $weekday->userID == $userID) {
-                $_SESSION['temp_message'] = "Veiledningen er booket";
-                // Set a flash message cookie
-                echo $conn->updateBookingToDB($_REQUEST['text'], $_POST['textDesc'], $timeDate, $userID);
-            } else {
-                $_SESSION['temp_message'] = "Veiledningen er opptatt";
-            }
+            $student = $conn->selectUserFromDBUserId($weekday->userID);
+            echo "<br /> Student: " . str_replace(".", "", ($this->shortString($student->fname, 1))) . "." . str_replace(".", "", ($this->shortString($student->lname, 1))) . ". <br>";
         } else {
-            // If no booking request has been made, show the booking info for this time slot
-            $weekday = $conn->selectBookingFromDB($timeDate);
-            echo $this->shortString($weekday->bookingInfo, 15);
-
-            // If the time slot is booked, show the user who booked it
-            if ($weekday->userID != NULL) {
-
-                $student = $conn->selectUserFromDBUserId($weekday->userID);
-                echo "<br /> Student: " . str_replace(".", "", ($this->shortString($student->fname, 1))) . "." . str_replace(".", "", ($this->shortString($student->lname, 1))) . ". <br>";
-            } else if ($weekday->la != NULL) {
-                $la = $conn->selectUserFromDBUserId($weekday->la);
-                echo "<br /> LA: " . str_replace(".", "", ($this->shortString($la->fname, 1))) . "." . str_replace(".", "", ($this->shortString($la->lname, 1))) . ". <br>";
-            } else {
-                echo "<br /> ";
-            }
+            echo "<br /> ";
         }
+        
     }
 
     /**
